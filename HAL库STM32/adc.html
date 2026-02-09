@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模块详情 - STM32F103 ADC模块</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #0a0a0a;
+            color: #f0f0f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 头部样式 */
+        header {
+            padding: 30px 0 20px;
+            border-bottom: 1px solid #333;
+            margin-bottom: 40px;
+        }
+        
+        /* 标题区域 - 改为左对齐 */
+        h1 {
+            color: #fff;
+            font-size: 2.8rem;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+            text-align: left;
+        }
+        
+        /* 副标题与按钮容器 - 调整布局 */
+        .subtitle-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .module-subtitle {
+            color: #aaa;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            text-align: left;
+            flex: 1;
+            min-width: 300px;
+            margin-bottom: 15px;
+        }
+        
+        /* 面包屑导航 - 改为左对齐 */
+        .breadcrumb {
+            text-align: left;
+            margin-bottom: 20px;
+            color: #888;
+            font-size: 0.95rem;
+        }
+        
+        .breadcrumb a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .breadcrumb a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+        
+        /* 按钮容器 - 移到右侧 */
+        .header-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+        
+        /* 导航按钮样式 */
+        .nav-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #222;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border: 1px solid #444;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .nav-button:hover {
+            background-color: #333;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-button.cubemx {
+            border-left: 4px solid #ff9800;
+        }
+        
+        .nav-button.hal {
+            border-left: 4px solid #4ec9b0;
+        }
+        
+        .nav-button.details {
+            border-left: 4px solid #569cd6;
+        }
+        
+        /* 主要内容布局 - 保持左主右辅 */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 40px;
+            margin-bottom: 60px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 左侧内容区域 */
+        .content-left {
+            background-color: #111;
+            border-radius: 15px;
+            padding: 40px;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 右侧侧边栏 - 模块详情 */
+        .sidebar-right {
+            background-color: #111;
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateX(30px);
+            animation: slideInRight 1s ease 0.3s forwards;
+        }
+        
+        @keyframes slideInRight {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* 内容区域样式 */
+        .content-section {
+            margin-bottom: 40px;
+        }
+        
+        .content-section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #fff;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .content-section h3 {
+            font-size: 1.4rem;
+            margin: 25px 0 15px;
+            color: #ddd;
+        }
+        
+        .content-section p {
+            color: #bbb;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+        
+        .content-section ul, .content-section ol {
+            padding-left: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .content-section li {
+            color: #bbb;
+            line-height: 1.7;
+            margin-bottom: 8px;
+        }
+        
+        /* 代码块样式 */
+        .code-block {
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #666;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        
+        .code-block pre {
+            color: #ddd;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        
+        .code-block code {
+            color: #4ec9b0;
+        }
+        
+        /* 配置选项表格 */
+        .config-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .config-table th {
+            background-color: #222;
+            color: #fff;
+            text-align: left;
+            padding: 12px 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #333;
+        }
+        
+        .config-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #333;
+            color: #bbb;
+        }
+        
+        .config-table tr:nth-child(even) {
+            background-color: #1a1a1a;
+        }
+        
+        .config-table tr:hover {
+            background-color: #222;
+        }
+        
+        /* 对比表格样式 */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .comparison-table th {
+            background-color: #222;
+            color: #fff;
+            text-align: left;
+            padding: 12px 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #333;
+        }
+        
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #333;
+            color: #bbb;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background-color: #1a1a1a;
+        }
+        
+        .comparison-table tr:hover {
+            background-color: #222;
+        }
+        
+        /* 侧边栏样式 - 模块详情 */
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+        
+        .sidebar-section h3 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #fff;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* 技术参数表格 */
+        .params-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .params-table th {
+            background-color: #222;
+            color: #fff;
+            text-align: left;
+            padding: 12px 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #333;
+        }
+        
+        .params-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #333;
+            color: #bbb;
+        }
+        
+        .params-table tr:nth-child(even) {
+            background-color: #1a1a1a;
+        }
+        
+        .params-table tr:hover {
+            background-color: #222;
+        }
+        
+        /* 寄存器列表 */
+        .register-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .register-list li {
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background-color: #1a1a1a;
+            border-radius: 6px;
+            border-left: 3px solid #666;
+            transition: all 0.3s ease;
+        }
+        
+        .register-list li:hover {
+            background-color: #222;
+            border-left-color: #aaa;
+            transform: translateX(5px);
+        }
+        
+        .register-name {
+            font-weight: bold;
+            color: #fff;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .register-desc {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        /* 功能标签 */
+        .pin-functions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .pin-tag {
+            background-color: #1a1a1a;
+            color: #ccc;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+        }
+        
+        .pin-tag:hover {
+            background-color: #222;
+            border-color: #666;
+            transform: translateY(-3px);
+        }
+        
+        /* 模块特性卡片 */
+        .module-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .feature-card {
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            padding: 20px;
+            border-top: 4px solid #666;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: #aaa;
+        }
+        
+        .feature-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feature-card p {
+            color: #bbb;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        /* 返回按钮 */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #222;
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid #444;
+        }
+        
+        .back-button:hover {
+            background-color: #333;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 页脚 */
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 60px;
+            border-top: 1px solid #333;
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr 300px;
+            }
+            
+            .content-left {
+                padding: 30px;
+            }
+            
+            .sidebar-right {
+                padding: 25px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .sidebar-right {
+                order: -1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .module-subtitle {
+                font-size: 1rem;
+                min-width: 100%;
+            }
+            
+            .content-left, .sidebar-right {
+                padding: 25px;
+            }
+            
+            .module-features {
+                grid-template-columns: 1fr;
+            }
+            
+            .params-table, .config-table, .comparison-table {
+                font-size: 0.9rem;
+            }
+            
+            .params-table th, .params-table td,
+            .config-table th, .config-table td,
+            .comparison-table th, .comparison-table td {
+                padding: 10px 12px;
+            }
+            
+            .subtitle-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .module-subtitle {
+                text-align: left;
+                width: 100%;
+                order: 1;
+            }
+            
+            .header-buttons {
+                width: 100%;
+                justify-content: flex-start;
+                order: 2;
+            }
+            
+            .breadcrumb {
+                text-align: left;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .content-left, .sidebar-right {
+                padding: 20px;
+            }
+            
+            .content-section h2 {
+                font-size: 1.6rem;
+            }
+            
+            .content-section h3 {
+                font-size: 1.3rem;
+            }
+            
+            .sidebar-section h3 {
+                font-size: 1.3rem;
+            }
+            
+            .header-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .nav-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="breadcrumb">
+                <a href="demo.html">主页</a> &gt; <span>ADC模块详情</span>
+            </div>
+            
+            <h1>ADC模块</h1>
+            
+            <!-- 副标题与按钮容器 -->
+            <div class="subtitle-container">
+                <!-- 副标题 - 左侧 -->
+                <p class="module-subtitle">STM32F103内置的12位ADC模块是连接模拟世界与数字处理的关键。<br>该模块提供多种转换模式和触发方式，适用于各种模拟信号采集应用，可以高效实现单通道或多通道的数据采集。</p>
+                
+                <!-- 按钮容器 - 右侧 -->
+                <div class="header-buttons">
+                    <button class="nav-button cubemx" onclick="scrollToSection('cubemx-quickstart')">
+                        <i class="fas fa-tools"></i> CubeMX使用
+                    </button>
+                    <button class="nav-button hal" onclick="scrollToSection('hal-library')">
+                        <i class="fas fa-code"></i> HAL库使用
+                    </button>
+                    <button class="nav-button details" onclick="scrollToSection('details')">
+                        <i class="fas fa-info-circle"></i> 详细信息
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <main>
+            <div class="main-content">
+                <!-- 左侧内容区域 -->
+                <div class="content-left">
+                    <div class="content-section">
+                        <h2><i class="fas fa-info-circle"></i> 概述</h2>
+                        <p>STM32F103系列微控制器内置的12位逐次逼近型ADC模块，支持最多18个输入通道，包括16个外部通道和2个内部通道（温度传感器和内部参考电压）。该模块提供多种转换模式和触发方式，适用于各种模拟信号采集应用。</p>
+                        
+                        <h3>核心特性</h3>
+                        
+                        <table class="config-table">
+                            <thead>
+                                <tr>
+                                    <th>特性/参数</th>
+                                    <th>说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>分辨率</td>
+                                    <td>12位，输出数字量范围 0~4095</td>
+                                </tr>
+                                <tr>
+                                    <td>输入电压范围</td>
+                                    <td>0V ~ 3.3V (VREF-至VREF+)，严禁超范围输入</td>
+                                </tr>
+                                <tr>
+                                    <td>转换时间</td>
+                                    <td>总时间 = 采样时间 + 12.5个ADC时钟周期。采样时间可配置，直接影响精度与速度。</td>
+                                </tr>
+                                <tr>
+                                    <td>通道数量</td>
+                                    <td>最多18个通道：16个外部信号 + 2个内部信号源(温度传感器、内部参考电压)</td>
+                                </tr>
+                                <tr>
+                                    <td>工作模式</td>
+                                    <td>单次/连续转换、扫描模式(用于多通道)、注入通道等</td>
+                                </tr>
+                                <tr>
+                                    <td>数据对齐</td>
+                                    <td>右对齐（常用）或左对齐</td>
+                                </tr>
+                                <tr>
+                                    <td>数据传输</td>
+                                    <td>查询、中断或DMA（多通道和连续采集推荐使用）</td>
+                                </tr>
+                                <tr>
+                                    <td>时钟(ADC_CLK)</td>
+                                    <td>由APB2时钟分频，最大不超过14MHz。系统时钟72MHz时，通常6分频得到12MHz</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- CubeMX使用部分 -->
+                    <div id="cubemx-quickstart" class="content-section">
+                        <h2><i class="fas fa-tools"></i> CubeMX使用</h2>
+                        <p>STM32CubeMX是ST官方提供的图形化配置工具，可以快速配置ADC参数，生成初始化代码。</p>
+                        
+                        <h3>ADC多通道DMA采集配置步骤</h3>
+                        <p>使用STM32CubeMX配置ADC多通道DMA采集，主要步骤如下：</p>
+                        
+                        <h4>1. 启用ADC通道</h4>
+                        <p>在 <strong>Analog</strong> 标签下选择ADC（如ADC1），勾选需要使用的通道（如IN0、IN1）。右侧引脚图会显示对应的GPIO（如PA0、PA1）自动配置为模拟输入。</p>
+                        
+                        <h4>2. 配置ADC参数</h4>
+                        <p>在ADC参数设置中：</p>
+                        <ul>
+                            <li><strong>Scan Conversion Mode</strong>：多通道必须启用 (Enabled)</li>
+                            <li><strong>Continuous Conversion Mode</strong>：启用 (Enabled) 以实现连续自动转换</li>
+                            <li><strong>Number Of Conversion</strong>：设置为实际使用的通道数量</li>
+                            <li><strong>Rank</strong>：在此处为每个已启用通道单独设置采样顺序(Rank)和采样时间(Sampling Time)。采样时间越长，抗噪能力越强，但转换速度越慢</li>
+                        </ul>
+                        
+                        <h4>3. 配置DMA</h4>
+                        <p>这是实现高效传输的关键：</p>
+                        <ul>
+                            <li>在 <strong>DMA Settings</strong> 点击 Add，选择对应的ADC通道</li>
+                            <li><strong>Mode</strong>：选择 Circular (循环模式)，实现持续自动传输</li>
+                            <li><strong>Increment Address</strong>：Peripheral (外设) 不增量，Memory (内存) 增量</li>
+                            <li><strong>Data Width</strong>：Peripheral 和 Memory 均设置为 Half Word (16位，匹配12位ADC数据)</li>
+                        </ul>
+                        
+                        <h4>4. 配置时钟</h4>
+                        <p>在时钟树配置中，确保ADCCLK不超过14MHz。通常PCLK2为72MHz，分频系数设为6，得到12MHz的ADC时钟。</p>
+                        
+                        <h3>CubeMX生成的初始化代码</h3>
+                        <p>CubeMX会自动生成ADC初始化代码，以下是典型示例：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// CubeMX生成的ADC初始化代码（main.c中的MX_ADC1_Init函数）
+static void MX_ADC1_Init(void) {
+    ADC_HandleTypeDef hadc1;
+    
+    // 配置ADC参数
+    hadc1.Instance = ADC1;
+    hadc1.Init.ScanConvMode = ENABLE;
+    hadc1.Init.ContinuousConvMode = ENABLE;
+    hadc1.Init.NbrOfConversion = 3;
+    hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+    hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+    
+    // 初始化ADC
+    if (HAL_ADC_Init(&hadc1) != HAL_OK) {
+        Error_Handler();
+    }
+    
+    // 配置通道0
+    ADC_ChannelConfTypeDef sConfig = {0};
+    sConfig.Channel = ADC_CHANNEL_0;
+    sConfig.Rank = 1;
+    sConfig.SamplingTime = ADC_SAMPLETIME_55CYCLES_5;
+    HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+    
+    // 配置通道1
+    sConfig.Channel = ADC_CHANNEL_1;
+    sConfig.Rank = 2;
+    HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+    
+    // 配置通道2
+    sConfig.Channel = ADC_CHANNEL_2;
+    sConfig.Rank = 3;
+    HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+}</code></pre>
+                        </div>
+                    </div>
+                        
+                    <!-- HAL库使用部分 -->
+                    <div id="hal-library" class="content-section">
+                        <h2><i class="fas fa-code"></i> HAL库使用</h2>
+                        <p>STM32 HAL库提供了简洁易用的ADC操作接口，以下是如何使用HAL库配置和操作ADC的详细说明。</p>
+                        
+                        <h3>代码实现（多通道DMA）</h3>
+                        <p>配置生成代码后，在工程中添加少量代码即可运行：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>/* 1. 在main.c开头定义存储数组（大小≥通道数） */
+uint16_t adcValue[3] = {0}; // 本例使用3个通道
+
+/* 2. 在main函数初始化部分启动校准和DMA传输 */
+int main(void) {
+  // ... CubeMX生成的初始化函数
+  HAL_ADCEx_Calibration_Start(&hadc1); // 执行ADC校准（对F103很重要）
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adcValue, 3); // 启动ADC， DMA自动传输3个通道数据到数组
+  while (1) {
+      // 此时 adcValue[0], adcValue[1], adcValue[2] 已自动更新为三个通道的原始ADC值
+      // 无需在循环内频繁调用启动或读取函数
+      // 可在此进行数据处理，如计算电压、滤波等
+      // 注意：DMA在后台持续更新数组，直接读取即可
+  }
+}</code></pre>
+                        </div>
+                        
+                        <h3>数据读取与转换</h3>
+                        <p><strong>读取</strong>：直接使用数组 adcValue[0]、adcValue[1]... 即可获取对应通道的原始值。</p>
+                        
+                        <p><strong>转换为电压</strong>：</p>
+                        <div class="code-block">
+                            <pre><code>// 将ADC原始值转换为电压
+float voltage = (adcValue[x] / 4095.0) * 3.3;</code></pre>
+                        </div>
+                        <p>为提高精度，可对每个通道连续采样多次后求平均。</p>
+                        
+                        <h3>ADC HAL主要函数列表</h3>
+                        <div class="code-block">
+                            <pre><code>// ADC HAL主要函数
+HAL_ADC_Init()                   // 初始化ADC
+HAL_ADC_DeInit()                 // 反初始化ADC
+HAL_ADC_Start()                  // 启动ADC转换（单次）
+HAL_ADC_Stop()                   // 停止ADC转换
+HAL_ADC_Start_DMA()              // 启动ADC DMA传输
+HAL_ADC_Stop_DMA()               // 停止ADC DMA传输
+HAL_ADC_Start_IT()               // 启动ADC中断模式转换
+HAL_ADC_Stop_IT()                // 停止ADC中断模式转换
+HAL_ADC_GetValue()               // 获取ADC转换值
+HAL_ADC_GetState()               // 获取ADC状态
+HAL_ADC_PollForConversion()      // 轮询等待转换完成
+HAL_ADCEx_Calibration_Start()    // 执行ADC校准</code></pre>
+                        </div>
+                        
+                        <h3>HAL库中断处理示例</h3>
+                        <p>配置ADC中断的完整示例：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// ADC中断配置示例
+#include "stm32f1xx_hal.h"
+
+// ADC初始化
+void ADC_Interrupt_Init(void) {
+    // 配置ADC参数，启用中断
+    hadc1.Instance = ADC1;
+    hadc1.Init.ContinuousConvMode = DISABLE;
+    
+    // 初始化ADC
+    HAL_ADC_Init(&hadc1);
+    
+    // 配置中断优先级
+    HAL_NVIC_SetPriority(ADC1_2_IRQn, 1, 0);
+    HAL_NVIC_EnableIRQ(ADC1_2_IRQn);
+}
+
+// 在stm32f1xx_it.c中调用中断处理函数
+void ADC1_2_IRQHandler(void) {
+    HAL_ADC_IRQHandler(&hadc1);
+}
+
+// 实现转换完成回调函数
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
+    if (hadc->Instance == ADC1) {
+        // 处理ADC转换完成
+        uint16_t adc_value = HAL_ADC_GetValue(hadc);
+        // 可以在此处添加自定义处理代码
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="content-section">
+                        <h2><i class="fas fa-cogs"></i> 配置与使用</h2>
+                        <p>ADC模块的正确配置是确保数据采集准确性的基础。以下是ADC配置的详细步骤和最佳实践。</p>
+                        
+                        <h3>ADC配置步骤</h3>
+                        <ol>
+                            <li><strong>时钟使能</strong>：通过RCC寄存器使能ADC时钟（最大14MHz）</li>
+                            <li><strong>引脚配置</strong>：配置ADC通道引脚的GPIO为模拟输入模式</li>
+                            <li><strong>参数设置</strong>：根据应用需求设置分辨率、对齐方式、触发源等</li>
+                            <li><strong>通道配置</strong>：设置要使用的通道及其采样时间</li>
+                            <li><strong>校准</strong>：执行ADC校准以提高精度</li>
+                            <li><strong>启动转换</strong>：根据需求选择单次、连续或扫描模式</li>
+                        </ol>
+                        
+                        <h3>不同应用场景的配置选择</h3>
+                        
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>应用场景</th>
+                                    <th>配置要点</th>
+                                    <th>优点/缺点</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>单通道、低频、简单查询</strong></td>
+                                    <td>配置为单次转换，使用 HAL_ADC_Start() 和 HAL_ADC_PollForConversion() 轮询读取</td>
+                                    <td>简单；但CPU占用高，效率低</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>单通道、需及时响应</strong></td>
+                                    <td>启用中断，使用 HAL_ADC_Start_IT()，在 HAL_ADC_ConvCpltCallback() 回调函数中处理数据</td>
+                                    <td>比查询高效；多通道时中断频繁可能影响系统实时性</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>多通道、连续、高效采集（推荐）</strong></td>
+                                    <td>采用 扫描模式 + 连续转换 + DMA循环传输，如上述示例</td>
+                                    <td>CPU占用极低，效率最高；是复杂或多通道应用的首选方案</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 详细信息部分 -->
+                    <div id="details" class="content-section">
+                        <h2><i class="fas fa-file-alt"></i> 详细信息</h2>
+                        <p>深入了解ADC模块的内部架构、性能特性和高级功能。</p>
+                        
+                        <h3>ADC转换时序分析</h3>
+                        <p>ADC转换时间由采样时间和转换时间组成：</p>
+                        <p><strong>转换时间公式</strong>：T<sub>conv</sub> = 采样时间 + 12.5个ADC时钟周期</p>
+                        <p><strong>示例计算</strong>：当ADC时钟为14MHz，采样时间为13.5周期时：</p>
+                        <p>总转换时间 = (13.5 + 12.5) / 14MHz ≈ 1.86μs</p>
+                        
+                        <h3>ADC工作模式对比</h3>
+                        
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>模式</th>
+                                    <th>配置要点</th>
+                                    <th>适用场景</th>
+                                    <th>优点/缺点</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>单次查询</strong></td>
+                                    <td>禁用扫描和连续转换，软件触发</td>
+                                    <td>低速、单点、非实时采集（如按键检测）</td>
+                                    <td>简单；但CPU占用高，效率低</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>中断</strong></td>
+                                    <td>启用中断，在转换完成回调中处理</td>
+                                    <td>中速、需及时响应的单通道采集</td>
+                                    <td>比查询高效；多通道时中断频繁可能影响系统实时性</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>DMA</strong></td>
+                                    <td>启用扫描、连续转换，并配置DMA循环模式</td>
+                                    <td>多通道、连续、高速数据采集（如波形记录）</td>
+                                    <td>CPU占用极低，效率最高；是复杂或多通道应用的首选方案</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h3>注意事项</h3>
+                        <p>使用ADC模块时需要注意的关键点：</p>
+                        <ul>
+                            <li><strong>电压范围</strong>：绝对不要直接测量超过0-3.3V范围的电压。对于更高电压，需使用分压电阻；负电压或微弱信号需要运放等调理电路</li>
+                            <li><strong>校准</strong>：STM32F103的ADC上电后建议执行一次校准 (HAL_ADCEx_Calibration_Start)，以减少零点误差</li>
+                            <li><strong>采样时间</strong>：对于高阻抗信号源，需设置更长的采样时间以保证电容充分充电，获得准确结果</li>
+                            <li><strong>电源噪声</strong>：数字噪声耦合到模拟电源会降低精度，确保VDDA干净稳定</li>
+                            <li><strong>参考电压</strong>：确保VDDA/VREF+电压稳定，与VDD电压差不超过0.3V</li>
+                        </ul>
+                        
+                        <h3>故障排除与调试技巧</h3>
+                        <p>常见ADC问题及解决方法：</p>
+                        <ul>
+                            <li><strong>转换值不稳定或跳动大</strong>：检查电源稳定性，增加采样时间，在模拟输入引脚添加滤波电容（10-100nF）</li>
+                            <li><strong>转换值始终为0或4095</strong>：检查GPIO配置是否正确（必须为模拟输入），验证参考电压连接，检查ADC是否已正确校准</li>
+                            <li><strong>DMA传输不工作</strong>：检查DMA通道是否与ADC正确关联，验证DMA缓冲区地址和大小，确保DMA中断已正确配置</li>
+                            <li><strong>功耗过高</strong>：检查ADC工作模式，关闭未使用功能，优化时钟配置，进入低功耗前禁用ADC</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- 模块特性卡片展示 -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-star"></i> 模块核心特性</h2>
+                        <div class="module-features">
+                            <div class="feature-card">
+                                <h4><i class="fas fa-sliders-h"></i> 高度可配置</h4>
+                                <p>支持多种工作模式和参数配置，可根据应用需求灵活调整采样时间、转换模式等。</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4><i class="fas fa-bolt"></i> 高性能</h4>
+                                <p>12位分辨率，最高1MSPS转换速率，提供高速数据采集能力，满足实时性要求高的应用场景。</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4><i class="fas fa-exchange-alt"></i> 多种接口</h4>
+                                <p>支持查询、中断、DMA等多种数据交换方式，可与系统其他模块高效协同工作。</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4><i class="fas fa-power-off"></i> 低功耗</h4>
+                                <p>支持多种低功耗模式，可根据系统状态动态调整功耗，延长电池使用寿命。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="demo.html" class="back-button">
+                        <i class="fas fa-arrow-left"></i> 返回主页面
+                    </a>
+                </div>
+                
+                <!-- 右侧侧边栏 - 模块详情 -->
+                <div class="sidebar-right">
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-microchip"></i> 技术参数</h3>
+                        <table class="params-table">
+                            <thead>
+                                <tr>
+                                    <th>参数</th>
+                                    <th>值/规格</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>分辨率</td>
+                                    <td>12位 (0-4095)</td>
+                                </tr>
+                                <tr>
+                                    <td>输入电压范围</td>
+                                    <td>0V ~ 3.3V</td>
+                                </tr>
+                                <tr>
+                                    <td>通道数量</td>
+                                    <td>最多18通道 (16外+2内)</td>
+                                </tr>
+                                <tr>
+                                    <td>转换时间</td>
+                                    <td>总时间 = 采样时间 + 12.5周期</td>
+                                </tr>
+                                <tr>
+                                    <td>最大采样率</td>
+                                    <td>1MSPS @14MHz</td>
+                                </tr>
+                                <tr>
+                                    <td>工作电压</td>
+                                    <td>2.0V - 3.6V (VDDA)</td>
+                                </tr>
+                                <tr>
+                                    <td>时钟频率</td>
+                                    <td>最大14MHz</td>
+                                </tr>
+                                <tr>
+                                    <td>线性误差</td>
+                                    <td>±1 LSB (典型)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-list-alt"></i> 主要寄存器</h3>
+                        <ul class="register-list">
+                            <li>
+                                <span class="register-name">ADC_SR</span>
+                                <span class="register-desc">状态寄存器，EOC（转换结束）、JEOC（注入结束）标志</span>
+                            </li>
+                            <li>
+                                <span class="register-name">ADC_CR1</span>
+                                <span class="register-desc">控制寄存器1，扫描模式、间断模式、模拟看门狗使能</span>
+                            </li>
+                            <li>
+                                <span class="register-name">ADC_CR2</span>
+                                <span class="register-desc">控制寄存器2，ADON（开关）、CONT（连续）、DMA、触发选择</span>
+                            </li>
+                            <li>
+                                <span class="register-name">ADC_SMPR1/2</span>
+                                <span class="register-desc">采样时间寄存器，设置各通道采样周期</span>
+                            </li>
+                            <li>
+                                <span class="register-name">ADC_SQR1-3</span>
+                                <span class="register-desc">规则序列寄存器，设置规则通道转换顺序</span>
+                            </li>
+                            <li>
+                                <span class="register-name">ADC_DR</span>
+                                <span class="register-desc">数据寄存器，规则通道转换结果</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-plug"></i> 工作模式</h3>
+                        <div class="pin-functions">
+                            <span class="pin-tag">单次转换</span>
+                            <span class="pin-tag">连续转换</span>
+                            <span class="pin-tag">扫描模式</span>
+                            <span class="pin-tag">注入通道</span>
+                            <span class="pin-tag">DMA模式</span>
+                            <span class="pin-tag">中断模式</span>
+                            <span class="pin-tag">查询模式</span>
+                            <span class="pin-tag">低功耗模式</span>
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-exclamation-triangle"></i> 注意事项</h3>
+                        <p style="color: #bbb; font-size: 0.95rem; line-height: 1.6; margin-top: 15px;">
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            使用前务必使能ADC时钟，不超过14MHz<br><br>
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            严禁测量超过0-3.3V范围的电压，需加调理电路<br><br>
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            上电后执行校准 (HAL_ADCEx_Calibration_Start)<br><br>
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            高阻抗信号源需增加采样时间
+                        </p>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-history"></i> 典型应用场景</h3>
+                        <p style="color: #bbb; font-size: 0.95rem; line-height: 1.6; margin-top: 15px;">
+                            • 多路传感器数据采集<br>
+                            • 电池电压和电量监测<br>
+                            • 音频信号采样和处理<br>
+                            • 电机控制电流反馈<br>
+                            • 环境参数监测系统<br>
+                            • 触摸按键检测<br>
+                            • 温度测量（内部传感器）
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>STM32F103 ADC模块详情页面 | 基于12位逐次逼近型ADC架构</p>
+            <p style="margin-top: 10px; font-size: 0.8rem;">提示：页面右上角按钮可快速跳转到CubeMX使用、HAL库使用和详细信息部分</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 页面加载动画
+            document.body.style.opacity = 0;
+            document.body.style.transition = 'opacity 0.8s ease';
+            
+            setTimeout(() => {
+                document.body.style.opacity = 1;
+            }, 100);
+            
+            // 为引脚标签添加悬停效果
+            const pinTags = document.querySelectorAll('.pin-tag');
+            pinTags.forEach(tag => {
+                tag.addEventListener('mouseenter', function() {
+                    this.style.boxShadow = '0 0 10px rgba(100, 100, 100, 0.5)';
+                });
+                
+                tag.addEventListener('mouseleave', function() {
+                    this.style.boxShadow = 'none';
+                });
+            });
+            
+            // 为表格行添加悬停效果
+            const tableRows = document.querySelectorAll('.params-table tr, .config-table tr, .comparison-table tr');
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#2a2a2a';
+                });
+                
+                row.addEventListener('mouseleave', function() {
+                    if (this.rowIndex % 2 === 0) {
+                        this.style.backgroundColor = '#1a1a1a';
+                    } else {
+                        this.style.backgroundColor = '';
+                    }
+                });
+            });
+            
+            // 为返回按钮添加点击效果
+            const backButton = document.querySelector('.back-button');
+            if (backButton) {
+                backButton.addEventListener('click', function(e) {
+                    // 添加点击反馈
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                });
+            }
+            
+            // 为导航按钮添加点击效果
+            const navButtons = document.querySelectorAll('.nav-button');
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // 添加点击反馈
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                });
+            });
+        });
+        
+        // 滚动到指定部分的函数
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                // 平滑滚动到目标位置
+                element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                // 添加视觉反馈
+                element.style.backgroundColor = '#2a2a2a';
+                setTimeout(() => {
+                    element.style.backgroundColor = '';
+                }, 1500);
+            }
+        }
+    </script>
+</body>
+</html>

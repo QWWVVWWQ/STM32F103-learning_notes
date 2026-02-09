@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I2C接口模块详情 - STM32F103</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #0a0a0a;
+            color: #f0f0f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 头部样式 */
+        header {
+            padding: 30px 0 20px;
+            border-bottom: 1px solid #333;
+            margin-bottom: 40px;
+        }
+        
+        /* 标题区域 - 改为左对齐 */
+        h1 {
+            color: #fff;
+            font-size: 2.8rem;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+            text-align: left;
+        }
+        
+        /* 副标题与按钮容器 - 调整布局 */
+        .subtitle-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .module-subtitle {
+            color: #aaa;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            text-align: left;
+            flex: 1;
+            min-width: 300px;
+            margin-bottom: 15px;
+        }
+        
+        /* 面包屑导航 - 改为左对齐 */
+        .breadcrumb {
+            text-align: left;
+            margin-bottom: 20px;
+            color: #888;
+            font-size: 0.95rem;
+        }
+        
+        .breadcrumb a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .breadcrumb a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+        
+        /* 按钮容器 - 移到右侧 */
+        .header-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+        
+        /* 导航按钮样式 */
+        .nav-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #222;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border: 1px solid #444;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .nav-button:hover {
+            background-color: #333;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-button.cubemx {
+            border-left: 4px solid #ff9800;
+        }
+        
+        .nav-button.hal {
+            border-left: 4px solid #4ec9b0;
+        }
+        
+        .nav-button.details {
+            border-left: 4px solid #569cd6;
+        }
+        
+        /* 主要内容布局 - 保持左主右辅 */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 40px;
+            margin-bottom: 60px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 左侧内容区域 */
+        .content-left {
+            background-color: #111;
+            border-radius: 15px;
+            padding: 40px;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 右侧侧边栏 - 模块详情 */
+        .sidebar-right {
+            background-color: #111;
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateX(30px);
+            animation: slideInRight 1s ease 0.3s forwards;
+        }
+        
+        @keyframes slideInRight {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* 内容区域样式 */
+        .content-section {
+            margin-bottom: 40px;
+        }
+        
+        .content-section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #fff;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .content-section h3 {
+            font-size: 1.4rem;
+            margin: 25px 0 15px;
+            color: #ddd;
+        }
+        
+        .content-section p {
+            color: #bbb;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+        
+        .content-section ul, .content-section ol {
+            padding-left: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .content-section li {
+            color: #bbb;
+            line-height: 1.7;
+            margin-bottom: 8px;
+        }
+        
+        /* 代码块样式 */
+        .code-block {
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #666;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        
+        .code-block pre {
+            color: #ddd;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        
+        .code-block code {
+            color: #4ec9b0;
+        }
+        
+        /* 配置选项表格 */
+        .config-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .config-table th {
+            background-color: #222;
+            color: #fff;
+            text-align: left;
+            padding: 12px 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #333;
+        }
+        
+        .config-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #333;
+            color: #bbb;
+        }
+        
+        .config-table tr:nth-child(even) {
+            background-color: #1a1a1a;
+        }
+        
+        .config-table tr:hover {
+            background-color: #222;
+        }
+        
+        /* 侧边栏样式 - 模块详情 */
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+        
+        .sidebar-section h3 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #fff;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* 技术参数表格 */
+        .params-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .params-table th {
+            background-color: #222;
+            color: #fff;
+            text-align: left;
+            padding: 12px 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #333;
+        }
+        
+        .params-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #333;
+            color: #bbb;
+        }
+        
+        .params-table tr:nth-child(even) {
+            background-color: #1a1a1a;
+        }
+        
+        .params-table tr:hover {
+            background-color: #222;
+        }
+        
+        /* 寄存器列表 */
+        .register-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .register-list li {
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background-color: #1a1a1a;
+            border-radius: 6px;
+            border-left: 3px solid #666;
+            transition: all 0.3s ease;
+        }
+        
+        .register-list li:hover {
+            background-color: #222;
+            border-left-color: #aaa;
+            transform: translateX(5px);
+        }
+        
+        .register-name {
+            font-weight: bold;
+            color: #fff;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .register-desc {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        /* 功能标签 */
+        .pin-functions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .pin-tag {
+            background-color: #1a1a1a;
+            color: #ccc;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+        }
+        
+        .pin-tag:hover {
+            background-color: #222;
+            border-color: #666;
+            transform: translateY(-3px);
+        }
+        
+        /* 模块特性卡片 */
+        .module-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .feature-card {
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            padding: 20px;
+            border-top: 4px solid #666;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: #aaa;
+        }
+        
+        .feature-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feature-card p {
+            color: #bbb;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        /* 返回按钮 */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #222;
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid #444;
+        }
+        
+        .back-button:hover {
+            background-color: #333;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 页脚 */
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 60px;
+            border-top: 1px solid #333;
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr 300px;
+            }
+            
+            .content-left {
+                padding: 30px;
+            }
+            
+            .sidebar-right {
+                padding: 25px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .sidebar-right {
+                order: -1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .module-subtitle {
+                font-size: 1rem;
+                min-width: 100%;
+            }
+            
+            .content-left, .sidebar-right {
+                padding: 25px;
+            }
+            
+            .module-features {
+                grid-template-columns: 1fr;
+            }
+            
+            .params-table, .config-table {
+                font-size: 0.9rem;
+            }
+            
+            .params-table th, .params-table td,
+            .config-table th, .config-table td {
+                padding: 10px 12px;
+            }
+            
+            .subtitle-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .module-subtitle {
+                text-align: left;
+                width: 100%;
+                order: 1;
+            }
+            
+            .header-buttons {
+                width: 100%;
+                justify-content: flex-start;
+                order: 2;
+            }
+            
+            .breadcrumb {
+                text-align: left;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .content-left, .sidebar-right {
+                padding: 20px;
+            }
+            
+            .content-section h2 {
+                font-size: 1.6rem;
+            }
+            
+            .content-section h3 {
+                font-size: 1.3rem;
+            }
+            
+            .sidebar-section h3 {
+                font-size: 1.3rem;
+            }
+            
+            .header-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .nav-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="breadcrumb">
+                <a href="demo.html">主页</a> &gt; <span>I2C模块详情</span>
+            </div>
+            
+            <h1>I2C模块</h1>
+            
+            <!-- 副标题与按钮容器 -->
+            <div class="subtitle-container">
+                <!-- 副标题 - 左侧 -->
+                <p class="module-subtitle">I2C是一种两线式串行通信接口，支持多主从架构，<br>适用于低速外设通信，如传感器、EEPROM、RTC等。该模块支持标准模式、快速模式和快速模式增强版。</p>
+                
+                <!-- 按钮容器 - 右侧 -->
+                <div class="header-buttons">
+                    <button class="nav-button cubemx" onclick="scrollToSection('cubemx-quickstart')">
+                        <i class="fas fa-tools"></i> CubeMX使用
+                    </button>
+                    <button class="nav-button hal" onclick="scrollToSection('hal-library')">
+                        <i class="fas fa-code"></i> HAL库使用
+                    </button>
+                    <button class="nav-button details" onclick="scrollToSection('details')">
+                        <i class="fas fa-info-circle"></i> 详细信息
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <main>
+            <div class="main-content">
+                <!-- 左侧内容区域 -->
+                <div class="content-left">
+                    <div class="content-section">
+                        <h2><i class="fas fa-info-circle"></i> 概述</h2>
+                        <p>I2C（Inter-Integrated Circuit）是一种同步、多主从、串行通信总线，由飞利浦半导体（现恩智浦半导体）在1980年代开发。它使用两根线进行通信：串行数据线（SDA）和串行时钟线（SCL）。</p>
+                        
+                        <h3>主要功能</h3>
+                        <p>I2C接口在STM32F103系列中提供了完整的硬件实现，支持以下主要功能：</p>
+                        
+                        <ul>
+                            <li><strong>多主从架构</strong>：多个设备可共用同一条总线，支持主设备和从设备角色</li>
+                            <li><strong>速度模式</strong>：支持标准模式（100kHz）、快速模式（400kHz）和快速模式增强版（1MHz）</li>
+                            <li><strong>地址模式</strong>：支持7位和10位地址模式，支持双地址寻址</li>
+                            <li><strong>时钟延展</strong>：支持时钟延展功能，允许从设备降低通信速度</li>
+                            <li><strong>协议支持</strong>：支持SMBus（System Management Bus）协议</li>
+                            <li><strong>DMA支持</strong>：支持DMA传输，减轻CPU负担</li>
+                            <li><strong>错误校验</strong>：支持包错误校验（PEC）和硬件CRC校验</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- CubeMX使用部分 -->
+                    <div id="cubemx-quickstart" class="content-section">
+                        <h2><i class="fas fa-tools"></i> CubeMX使用</h2>
+                        <p>STM32CubeMX是ST官方提供的图形化配置工具，可以快速配置I2C参数，生成初始化代码。</p>
+                        
+                        <h3>模块分配与配置</h3>
+                        <p>在CubeMX中配置I2C的基本步骤：</p>
+                        <ul>
+                            <li><strong>分配模块</strong>：在Pinout & Configuration页面，选择Connectivity → I2C1或I2C2</li>
+                            <li><strong>配置模块参数</strong>：在Configuration中配置I2C模式、时钟速度、地址等参数</li>
+                            <li><strong>生成代码</strong>：生成初始化代码和HAL库函数调用</li>
+                        </ul>
+                        
+                        <h3>CubeMX配置选项</h3>
+                        <p>在CubeMX中配置I2C时，常见的选项：</p>
+                        
+                        <table class="config-table">
+                            <thead>
+                                <tr>
+                                    <th>配置项</th>
+                                    <th>说明</th>
+                                    <th>常用选项</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>I2C模式</td>
+                                    <td>选择I2C工作模式</td>
+                                    <td>I2C（标准模式）<br>SMBus Device<br>SMBus Host</td>
+                                </tr>
+                                <tr>
+                                    <td>时钟速度</td>
+                                    <td>设置I2C通信速度</td>
+                                    <td>标准模式: 100kHz<br>快速模式: 400kHz<br>快速模式增强版: 1MHz</td>
+                                </tr>
+                                <tr>
+                                    <td>从机地址</td>
+                                    <td>STM32作为从机时的地址</td>
+                                    <td>7位地址（0x00-0x7F）<br>10位地址</td>
+                                </tr>
+                                <tr>
+                                    <td>中断配置</td>
+                                    <td>中断使能和优先级</td>
+                                    <td>事件中断使能<br>错误中断使能<br>优先级设置</td>
+                                </tr>
+                                <tr>
+                                    <td>DMA配置</td>
+                                    <td>DMA传输使能</td>
+                                    <td>Tx DMA使能<br>Rx DMA使能<br>DMA通道选择</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h3>CubeMX生成的初始化代码</h3>
+                        <p>CubeMX会自动生成I2C初始化代码，以下是典型示例：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// CubeMX生成的I2C初始化代码（main.c中的MX_I2C1_Init函数）
+static void MX_I2C1_Init(void) {
+    hi2c1.Instance = I2C1;
+    hi2c1.Init.ClockSpeed = 400000;  // 400kHz快速模式
+    hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
+    hi2c1.Init.OwnAddress1 = 0;
+    hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+    hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+    hi2c1.Init.OwnAddress2 = 0;
+    hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+    hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+    
+    if (HAL_I2C_Init(&hi2c1) != HAL_OK) {
+        Error_Handler();
+    }
+}</code></pre>
+                        </div>
+                        
+                        <h3>使用CubeMX配置I2C的优势</h3>
+                        <ul>
+                            <li><strong>可视化配置</strong>：图形界面直观配置I2C参数，避免寄存器配置错误</li>
+                            <li><strong>引脚自动分配</strong>：自动配置SDA和SCL引脚，避免引脚冲突</li>
+                            <li><strong>时钟树配置</strong>：图形化配置I2C时钟源和分频系数</li>
+                            <li><strong>代码自动生成</strong>：自动生成完整的I2C初始化代码和HAL库函数调用</li>
+                            <li><strong>项目管理</strong>：支持生成多种IDE工程文件（Keil、IAR、Eclipse等）</li>
+                        </ul>
+                    </div>
+                        
+                    <!-- HAL库使用部分 -->
+                    <div id="hal-library" class="content-section">
+                        <h2><i class="fas fa-code"></i> HAL库使用</h2>
+                        <p>STM32 HAL库提供了简洁易用的I2C操作接口，支持阻塞、中断和DMA三种传输模式。</p>
+                        
+                        <h3>HAL库初始化</h3>
+                        <p>使用HAL库进行I2C初始化的步骤和方法：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// I2C HAL库初始化示例
+#include "stm32f1xx_hal.h"
+
+I2C_HandleTypeDef hi2c1;
+
+void MX_I2C1_Init(void) {
+    // 使能I2C时钟
+    __HAL_RCC_I2C1_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    
+    // 配置I2C引脚
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    
+    // 配置I2C参数
+    hi2c1.Instance = I2C1;
+    hi2c1.Init.ClockSpeed = 400000;  // 400kHz快速模式
+    hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
+    hi2c1.Init.OwnAddress1 = 0;
+    hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+    hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+    hi2c1.Init.OwnAddress2 = 0;
+    hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+    hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+    
+    // 调用HAL初始化函数
+    if (HAL_I2C_Init(&hi2c1) != HAL_OK) {
+        Error_Handler();
+    }
+}</code></pre>
+                        </div>
+                        
+                        <h3>三种操作模式与核心函数</h3>
+                        <div class="code-block">
+                            <pre><code>// I2C HAL主要函数
+// 查询（阻塞）模式
+HAL_I2C_Master_Transmit()     // 主模式发送
+HAL_I2C_Master_Receive()      // 主模式接收
+HAL_I2C_Mem_Read()           // 存储器读取
+HAL_I2C_Mem_Write()          // 存储器写入
+
+// 中断（非阻塞）模式  
+HAL_I2C_Master_Transmit_IT()  // 主模式中断发送
+HAL_I2C_Master_Receive_IT()   // 主模式中断接收
+
+// DMA模式
+HAL_I2C_Master_Transmit_DMA() // 主模式DMA发送
+HAL_I2C_Master_Receive_DMA()  // 主模式DMA接收</code></pre>
+                        </div>
+                        
+                        <h3>实战案例：读写EEPROM (AT24C02)</h3>
+                        <p>以使用查询模式操作AT24C02 EEPROM为例：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// 1. 定义变量
+#define EEPROM_ADDR 0xA0 // 7位地址左移1位后
+uint8_t writeData[] = {0x01, 0x02, 0x03};
+uint8_t readData[3] = {0};
+
+// 2. 写入数据 (向EEPROM的0x00地址开始写3个字节)
+if(HAL_I2C_Mem_Write(&hi2c1, EEPROM_ADDR, 0x00, 
+                     I2C_MEMADD_SIZE_8BIT, writeData, 3, 1000) == HAL_OK) {
+    // 写入成功，需注意EEPROM页写入延时
+    HAL_Delay(5);
+}
+
+// 3. 读取数据 (从EEPROM的0x00地址开始读3个字节)
+if(HAL_I2C_Mem_Read(&hi2c1, EEPROM_ADDR, 0x00, 
+                    I2C_MEMADD_SIZE_8BIT, readData, 3, 1000) == HAL_OK) {
+    // 读取成功，处理readData
+}</code></pre>
+                        </div>
+                        
+                        <h3>HAL库回调函数</h3>
+                        <p>中断和DMA模式下的回调函数使用示例：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// 传输完成回调函数
+void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c) {
+    // 传输完成处理
+    if (hi2c->Instance == I2C1) {
+        // I2C1传输完成
+    }
+}
+
+// 错误回调函数
+void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c) {
+    // 错误处理
+    uint32_t errorCode = HAL_I2C_GetError(hi2c);
+    if (errorCode != HAL_I2C_ERROR_NONE) {
+        // 处理具体错误
+    }
+}
+
+// 设备就绪检测
+uint8_t I2C_CheckDeviceReady(uint8_t deviceAddr) {
+    // 检测设备是否响应
+    if (HAL_I2C_IsDeviceReady(&hi2c1, deviceAddr << 1, 3, HAL_MAX_DELAY) == HAL_OK) {
+        return 1;  // 设备就绪
+    }
+    return 0;  // 设备未响应
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="content-section">
+                        <h2><i class="fas fa-cogs"></i> 配置与使用</h2>
+                        <p>I2C模块的正确配置是确保系统正常工作的基础。以下是I2C配置的详细步骤和最佳实践。</p>
+                        
+                        <h3>配置步骤</h3>
+                        <ol>
+                            <li><strong>硬件连接</strong>：连接SDA和SCL线，并确保有适当的上拉电阻（通常4.7kΩ）</li>
+                            <li><strong>时钟使能</strong>：通过RCC寄存器使能I2C和相关GPIO的时钟</li>
+                            <li><strong>引脚配置</strong>：配置GPIO为开漏输出模式，并启用内部上拉</li>
+                            <li><strong>参数设置</strong>：设置时钟速度、地址模式、从机地址等参数</li>
+                            <li><strong>初始化</strong>：调用HAL_I2C_Init()函数初始化I2C外设</li>
+                            <li><strong>中断/DMA配置</strong>：如果需要中断或DMA传输，配置相应的NVIC和DMA通道</li>
+                            <li><strong>通信测试</strong>：使用HAL_I2C_IsDeviceReady()函数测试设备连接</li>
+                        </ol>
+                        
+                        <h3>完整I2C使用示例</h3>
+                        
+                        <div class="code-block">
+                            <pre><code>// 完整I2C使用示例
+#include "stm32f1xx_hal.h"
+
+I2C_HandleTypeDef hi2c1;
+
+int main(void) {
+    // HAL库初始化
+    HAL_Init();
+    SystemClock_Config();
+    
+    // I2C初始化
+    MX_I2C1_Init();
+    
+    // 检测设备是否就绪
+    uint8_t eepromAddr = 0xA0;  // EEPROM设备地址
+    if (HAL_I2C_IsDeviceReady(&hi2c1, eepromAddr, 3, 100) == HAL_OK) {
+        // 设备就绪，进行数据读写
+        
+        // 写入数据到EEPROM
+        uint8_t writeData[] = {0x48, 0x65, 0x6C, 0x6C, 0x6F};  // "Hello"
+        uint8_t memAddr = 0x10;  // 存储器地址
+        
+        HAL_I2C_Mem_Write(&hi2c1, eepromAddr, memAddr, 
+                         I2C_MEMADD_SIZE_8BIT, writeData, 5, 100);
+        
+        // 等待EEPROM写入完成
+        HAL_Delay(5);
+        
+        // 从EEPROM读取数据
+        uint8_t readData[5];
+        HAL_I2C_Mem_Read(&hi2c1, eepromAddr, memAddr, 
+                        I2C_MEMADD_SIZE_8BIT, readData, 5, 100);
+    }
+    
+    while(1) {
+        // 主循环
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <!-- 详细信息部分 -->
+                    <div id="details" class="content-section">
+                        <h2><i class="fas fa-file-alt"></i> 详细信息</h2>
+                        <p>深入了解I2C模块的内部架构、性能特性和高级功能。</p>
+                        
+                        <h3>架构设计</h3>
+                        <p>STM32F103的I2C模块采用硬件实现的协议引擎，内部包含以下主要组件：</p>
+                        <ul>
+                            <li><strong>协议状态机</strong>：自动处理起始位、地址传输、数据传输和停止位</li>
+                            <li><strong>时钟控制单元</strong>：生成SCL时钟信号，支持时钟延展</li>
+                            <li><strong>地址比较器</strong>：自动比较接收到的地址与自身地址寄存器</li>
+                            <li><strong>数据移位寄存器</strong>：串行数据和并行数据之间的转换</li>
+                            <li><strong>中断和DMA控制器</strong>：支持中断和DMA数据传输</li>
+                            <li><strong>CRC计算单元</strong>：硬件CRC计算，支持PEC校验</li>
+                        </ul>
+                        
+                        <h3>性能分析</h3>
+                        <p>I2C模块的性能指标和优化建议：</p>
+                        <ul>
+                            <li><strong>最大吞吐量</strong>：1 Mbps（快速模式增强版）</li>
+                            <li><strong>典型延迟</strong>：5-10 μs（起始条件到第一个数据字节）</li>
+                            <li><strong>功耗</strong>：150 μA（100kHz工作频率）</li>
+                            <li><strong>温度范围</strong>：-40°C 到 +85°C（工业级）</li>
+                            <li><strong>优化建议</strong>：
+                                <ul>
+                                    <li>使用DMA传输大量数据以减少CPU开销</li>
+                                    <li>合理设置上拉电阻值（通常2.2kΩ-10kΩ）</li>
+                                    <li>避免过长的总线线路以减少电容影响</li>
+                                    <li>在高速模式下使用更短的连接线</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        
+                        <h3>重要注意事项</h3>
+                        <p>使用I2C模块时需要特别注意的事项：</p>
+                        <ul>
+                            <li><strong>地址格式</strong>：HAL库的I2C函数要求传入7位设备地址左移1位后的值（即8位地址）</li>
+                            <li><strong>总线死锁</strong>：I2C通信异常可能导致SCL和SDA线被意外拉低，造成"死锁"。解决方案是程序初始化时，在I2C配置前先对SDA和SCL引脚进行多次高低电平切换的"解锁"操作，模拟时钟信号释放总线</li>
+                            <li><strong>上拉电阻</strong>：I2C总线必须接上拉电阻（通常4.7kΩ），否则通信无法正常进行</li>
+                            <li><strong>超时设置</strong>：查询模式的函数有超时参数，需根据实际设置合理值（单位通常为毫秒级tick）</li>
+                        </ul>
+                        
+                        <h3>故障排除</h3>
+                        <p>常见I2C问题的解决方案和调试技巧：</p>
+                        <ul>
+                            <li><strong>设备不响应</strong>：检查设备地址、上拉电阻、电源电压</li>
+                            <li><strong>通信错误</strong>：检查时钟配置、总线冲突、信号完整性</li>
+                            <li><strong>数据损坏</strong>：检查时序要求、总线负载、干扰源</li>
+                            <li><strong>调试技巧</strong>：
+                                <ul>
+                                    <li>使用逻辑分析仪或示波器观察SDA/SCL波形</li>
+                                    <li>检查HAL_I2C_GetError()返回的错误代码</li>
+                                    <li>降低通信速度以测试稳定性</li>
+                                    <li>检查总线是否被其他设备拉低</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <!-- 模块特性卡片展示 -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-star"></i> 模块特性</h2>
+                        <div class="module-features">
+                            <div class="feature-card">
+                                <h4><i class="fas fa-exchange-alt"></i> 多主从架构</h4>
+                                <p>支持多主机和多从机在同一总线上通信，内置总线仲裁和时钟同步机制，确保多主机环境下的可靠通信。</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4><i class="fas fa-tachometer-alt"></i> 多种速度模式</h4>
+                                <p>支持标准模式（100kHz）、快速模式（400kHz）和快速模式增强版（1MHz），适应不同应用场景的速度需求。</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4><i class="fas fa-address-card"></i> 灵活寻址</h4>
+                                <p>支持7位和10位地址模式，双地址识别功能，可响应两个不同的从机地址，增加系统灵活性。</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4><i class="fas fa-shield-alt"></i> 高级错误处理</h4>
+                                <p>内置总线错误检测、仲裁丢失检测、超时检测和PEC校验，提供可靠的数据传输保障。</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4><i class="fas fa-microchip"></i> SMBus兼容</h4>
+                                <p>完全兼容System Management Bus协议，支持超时、PEC和主机通知等SMBus特性。</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4><i class="fas fa-bolt"></i> 低功耗设计</h4>
+                                <p>支持时钟延展和多种低功耗模式，从设备可以在数据传输期间暂停时钟以节省功耗。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="demo.html" class="back-button">
+                        <i class="fas fa-arrow-left"></i> 返回主页面
+                    </a>
+                </div>
+                
+                <!-- 右侧侧边栏 - 模块详情 -->
+                <div class="sidebar-right">
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-microchip"></i> 技术参数</h3>
+                        <table class="params-table">
+                            <thead>
+                                <tr>
+                                    <th>参数</th>
+                                    <th>值/规格</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>工作电压</td>
+                                    <td>2.0V - 3.6V</td>
+                                </tr>
+                                <tr>
+                                    <td>通信协议</td>
+                                    <td>I2C / SMBus</td>
+                                </tr>
+                                <tr>
+                                    <td>时钟频率</td>
+                                    <td>标准: 100kHz<br>快速: 400kHz<br>增强: 1MHz</td>
+                                </tr>
+                                <tr>
+                                    <td>地址宽度</td>
+                                    <td>7位 / 10位</td>
+                                </tr>
+                                <tr>
+                                    <td>从机地址</td>
+                                    <td>双地址支持</td>
+                                </tr>
+                                <tr>
+                                    <td>数据宽度</td>
+                                    <td>8位</td>
+                                </tr>
+                                <tr>
+                                    <td>DMA支持</td>
+                                    <td>2个通道（Rx/Tx）</td>
+                                </tr>
+                                <tr>
+                                    <td>功耗</td>
+                                    <td>150 μA @ 100kHz<br>10 μA（待机）</td>
+                                </tr>
+                                <tr>
+                                    <td>温度范围</td>
+                                    <td>-40°C 到 +85°C</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-list-alt"></i> 主要寄存器</h3>
+                        <ul class="register-list">
+                            <li>
+                                <span class="register-name">I2C_CR1 - 控制寄存器1</span>
+                                <span class="register-desc">使能/禁用I2C，配置时钟延展、SMBus模式等</span>
+                            </li>
+                            <li>
+                                <span class="register-name">I2C_CR2 - 控制寄存器2</span>
+                                <span class="register-desc">配置中断使能、DMA使能、时钟频率等</span>
+                            </li>
+                            <li>
+                                <span class="register-name">I2C_OAR1 - 自身地址寄存器1</span>
+                                <span class="register-desc">配置I2C从机地址（7位/10位）</span>
+                            </li>
+                            <li>
+                                <span class="register-name">I2C_OAR2 - 自身地址寄存器2</span>
+                                <span class="register-desc">配置双地址模式的第二个地址</span>
+                            </li>
+                            <li>
+                                <span class="register-name">I2C_DR - 数据寄存器</span>
+                                <span class="register-desc">发送/接收数据存储</span>
+                            </li>
+                            <li>
+                                <span class="register-name">I2C_SR1 - 状态寄存器1</span>
+                                <span class="register-desc">传输状态、地址匹配、总线错误等</span>
+                            </li>
+                            <li>
+                                <span class="register-name">I2C_SR2 - 状态寄存器2</span>
+                                <span class="register-desc">总线忙状态、从机模式状态等</span>
+                            </li>
+                            <li>
+                                <span class="register-name">I2C_CCR - 时钟控制寄存器</span>
+                                <span class="register-desc">配置I2C时钟分频和占空比</span>
+                            </li>
+                            <li>
+                                <span class="register-name">I2C_TRISE - 上升时间寄存器</span>
+                                <span class="register-desc">配置SCL上升时间，适应不同速度模式</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-plug"></i> 引脚功能</h3>
+                        <div class="pin-functions">
+                            <span class="pin-tag">SDA (数据线)</span>
+                            <span class="pin-tag">SCL (时钟线)</span>
+                            <span class="pin-tag">SMBA (SMBus报警)</span>
+                            <span class="pin-tag">VDD (电源)</span>
+                            <span class="pin-tag">GND (地)</span>
+                        </div>
+                        <p style="color: #bbb; font-size: 0.9rem; margin-top: 10px; line-height: 1.5;">
+                            <i class="fas fa-info-circle" style="color: #4CAF50; margin-right: 5px;"></i>
+                            SDA和SCL需要外部上拉电阻（通常4.7kΩ），SMBA为SMBus可选引脚。
+                        </p>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-exclamation-triangle"></i> 注意事项</h3>
+                        <p style="color: #bbb; font-size: 0.95rem; line-height: 1.6; margin-top: 15px;">
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            SDA和SCL线必须使用上拉电阻（2.2kΩ-10kΩ）<br><br>
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            高速模式下需考虑信号完整性和总线电容影响<br><br>
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            多主机环境下需正确处理总线仲裁和冲突<br><br>
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            10位地址模式下需按协议发送完整地址序列
+                        </p>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-history"></i> 典型应用</h3>
+                        <p style="color: #bbb; font-size: 0.95rem; line-height: 1.6; margin-top: 15px;">
+                            • 温度/湿度传感器<br>
+                            • EEPROM存储器读写<br>
+                            • 实时时钟（RTC）模块<br>
+                            • 数字加速度计/陀螺仪<br>
+                            • LCD显示屏控制<br>
+                            • 音频编解码器<br>
+                            • 电源管理芯片<br>
+                            • 触摸屏控制器
+                        </p>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-file-code"></i> 相关HAL文件</h3>
+                        <p style="color: #bbb; font-size: 0.95rem; line-height: 1.6; margin-top: 15px;">
+                            • stm32f1xx_hal_i2c.c<br>
+                            • stm32f1xx_hal_i2c.h<br>
+                            • stm32f1xx_hal_i2c_ex.c<br>
+                            • stm32f1xx_hal_i2c_ex.h<br>
+                            • stm32f1xx_hal_msp.c
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>STM32F103 I2C接口模块详情页面 | 左侧内容展示，右侧侧边栏展示技术参数和详细信息</p>
+            <p style="margin-top: 10px; font-size: 0.8rem;">提示：右上角按钮可快速跳转到CubeMX使用、HAL库使用和详细信息部分</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 页面加载动画
+            document.body.style.opacity = 0;
+            document.body.style.transition = 'opacity 0.8s ease';
+            
+            setTimeout(() => {
+                document.body.style.opacity = 1;
+            }, 100);
+            
+            // 为引脚标签添加悬停效果
+            const pinTags = document.querySelectorAll('.pin-tag');
+            pinTags.forEach(tag => {
+                tag.addEventListener('mouseenter', function() {
+                    this.style.boxShadow = '0 0 10px rgba(100, 100, 100, 0.5)';
+                });
+                
+                tag.addEventListener('mouseleave', function() {
+                    this.style.boxShadow = 'none';
+                });
+            });
+            
+            // 为表格行添加悬停效果
+            const tableRows = document.querySelectorAll('.params-table tr, .config-table tr');
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#2a2a2a';
+                });
+                
+                row.addEventListener('mouseleave', function() {
+                    if (this.rowIndex % 2 === 0) {
+                        this.style.backgroundColor = '#1a1a1a';
+                    } else {
+                        this.style.backgroundColor = '';
+                    }
+                });
+            });
+            
+            // 为返回按钮添加点击效果
+            const backButton = document.querySelector('.back-button');
+            if (backButton) {
+                backButton.addEventListener('click', function(e) {
+                    // 添加点击反馈
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                });
+            }
+            
+            // 为导航按钮添加点击效果
+            const navButtons = document.querySelectorAll('.nav-button');
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // 添加点击反馈
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                });
+            });
+        });
+        
+        // 滚动到指定部分的函数
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                // 平滑滚动到目标位置
+                element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                // 添加视觉反馈
+                element.style.backgroundColor = '#2a2a2a';
+                setTimeout(() => {
+                    element.style.backgroundColor = '';
+                }, 1500);
+            }
+        }
+    </script>
+</body>
+</html>

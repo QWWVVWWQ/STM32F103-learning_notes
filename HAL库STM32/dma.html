@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMA模块详情 - STM32F103</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #0a0a0a;
+            color: #f0f0f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 头部样式 */
+        header {
+            padding: 30px 0 20px;
+            border-bottom: 1px solid #333;
+            margin-bottom: 40px;
+        }
+        
+        /* 标题区域 */
+        h1 {
+            color: #fff;
+            font-size: 2.8rem;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+            text-align: right;
+        }
+        
+        /* 副标题与按钮容器 */
+        .subtitle-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .module-subtitle {
+            color: #aaa;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            text-align: right;
+            flex-shrink: 0;
+        }
+        
+        /* 面包屑导航 */
+        .breadcrumb {
+            text-align: right;
+            margin-bottom: 20px;
+            color: #888;
+            font-size: 0.95rem;
+        }
+        
+        .breadcrumb a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .breadcrumb a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+        
+        /* 新增：按钮容器 - 左侧 */
+        .header-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        /* 导航按钮样式 */
+        .nav-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #222;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border: 1px solid #444;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .nav-button:hover {
+            background-color: #333;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-button.cubemx {
+            border-left: 4px solid #ff9800;
+        }
+        
+        .nav-button.hal {
+            border-left: 4px solid #4ec9b0;
+        }
+        
+        .nav-button.details {
+            border-left: 4px solid #569cd6;
+        }
+        
+        /* 主要内容布局 */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 40px;
+            margin-bottom: 60px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 左侧内容区域 */
+        .content-left {
+            background-color: #111;
+            border-radius: 15px;
+            padding: 40px;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 右侧侧边栏 - 模块详情 */
+        .sidebar-right {
+            background-color: #111;
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateX(30px);
+            animation: slideInRight 1s ease 0.3s forwards;
+        }
+        
+        @keyframes slideInRight {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* 内容区域样式 */
+        .content-section {
+            margin-bottom: 40px;
+        }
+        
+        .content-section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #fff;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .content-section h3 {
+            font-size: 1.4rem;
+            margin: 25px 0 15px;
+            color: #ddd;
+        }
+        
+        .content-section p {
+            color: #bbb;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+        
+        .content-section ul, .content-section ol {
+            padding-left: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .content-section li {
+            color: #bbb;
+            line-height: 1.7;
+            margin-bottom: 8px;
+        }
+        
+        /* 代码块样式 */
+        .code-block {
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #666;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        
+        .code-block pre {
+            color: #ddd;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        
+        .code-block code {
+            color: #4ec9b0;
+        }
+        
+        /* 配置选项表格 */
+        .config-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .config-table th {
+            background-color: #222;
+            color: #fff;
+            text-align: left;
+            padding: 12px 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #333;
+        }
+        
+        .config-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #333;
+            color: #bbb;
+        }
+        
+        .config-table tr:nth-child(even) {
+            background-color: #1a1a1a;
+        }
+        
+        .config-table tr:hover {
+            background-color: #222;
+        }
+        
+        /* 侧边栏样式 - 模块详情 */
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+        
+        .sidebar-section h3 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #fff;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* 技术参数表格 */
+        .params-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .params-table th {
+            background-color: #222;
+            color: #fff;
+            text-align: left;
+            padding: 12px 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #333;
+        }
+        
+        .params-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #333;
+            color: #bbb;
+        }
+        
+        .params-table tr:nth-child(even) {
+            background-color: #1a1a1a;
+        }
+        
+        .params-table tr:hover {
+            background-color: #222;
+        }
+        
+        /* 寄存器列表 */
+        .register-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .register-list li {
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background-color: #1a1a1a;
+            border-radius: 6px;
+            border-left: 3px solid #666;
+            transition: all 0.3s ease;
+        }
+        
+        .register-list li:hover {
+            background-color: #222;
+            border-left-color: #aaa;
+            transform: translateX(5px);
+        }
+        
+        .register-name {
+            font-weight: bold;
+            color: #fff;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .register-desc {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        /* 功能标签 */
+        .pin-functions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .pin-tag {
+            background-color: #1a1a1a;
+            color: #ccc;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+        }
+        
+        .pin-tag:hover {
+            background-color: #222;
+            border-color: #666;
+            transform: translateY(-3px);
+        }
+        
+        /* 模块特性卡片 */
+        .module-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .feature-card {
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            padding: 20px;
+            border-top: 4px solid #666;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: #aaa;
+        }
+        
+        .feature-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feature-card p {
+            color: #bbb;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        /* 返回按钮 */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #222;
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid #444;
+        }
+        
+        .back-button:hover {
+            background-color: #333;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 页脚 */
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 60px;
+            border-top: 1px solid #333;
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr 300px;
+            }
+            
+            .content-left {
+                padding: 30px;
+            }
+            
+            .sidebar-right {
+                padding: 25px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .sidebar-right {
+                order: -1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .module-subtitle {
+                font-size: 1rem;
+            }
+            
+            .content-left, .sidebar-right {
+                padding: 25px;
+            }
+            
+            .module-features {
+                grid-template-columns: 1fr;
+            }
+            
+            .params-table, .config-table {
+                font-size: 0.9rem;
+            }
+            
+            .params-table th, .params-table td,
+            .config-table th, .config-table td {
+                padding: 10px 12px;
+            }
+            
+            .subtitle-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .module-subtitle {
+                text-align: left;
+                width: 100%;
+            }
+            
+            .header-buttons {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .breadcrumb {
+                text-align: left;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .content-left, .sidebar-right {
+                padding: 20px;
+            }
+            
+            .content-section h2 {
+                font-size: 1.6rem;
+            }
+            
+            .content-section h3 {
+                font-size: 1.3rem;
+            }
+            
+            .sidebar-section h3 {
+                font-size: 1.3rem;
+            }
+            
+            .header-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .nav-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="breadcrumb">
+                <a href="demo.html">主页</a> &gt; <span>模块详情</span>
+            </div>
+            
+            <h1>DMA控制器</h1>
+            
+            <!-- 副标题与按钮容器 -->
+            <div class="subtitle-container">
+                <!-- 新增的按钮容器 - 左侧 -->
+                <div class="header-buttons">
+                    <button class="nav-button cubemx" onclick="scrollToSection('cubemx-quickstart')">
+                        <i class="fas fa-tools"></i> CubeMX使用
+                    </button>
+                    <button class="nav-button hal" onclick="scrollToSection('hal-library')">
+                        <i class="fas fa-code"></i> HAL库使用
+                    </button>
+                    <button class="nav-button details" onclick="scrollToSection('details')">
+                        <i class="fas fa-info-circle"></i> 详细信息
+                    </button>
+                </div>
+                
+                <!-- 副标题 - 右侧 -->
+                <p class="module-subtitle">DMA（直接存储器访问）控制器用于在外设与存储器之间高效传输数据，无需CPU干预，显著减轻CPU负担</p>
+            </div>
+        </header>
+        
+        <main>
+            <div class="main-content">
+                <!-- 左侧内容区域 -->
+                <div class="content-left">
+                    <div class="content-section">
+                        <h2><i class="fas fa-info-circle"></i> 概述</h2>
+                        <p>STM32F103的DMA模块是一个用于高速数据搬运的独立硬件单元，它能在不占用CPU的情况下，在内存（如SRAM）和外设（如串口、ADC）之间自动传输数据。这能显著减轻CPU负担，提升系统实时性和效率。</p>
+                        
+                        <h3>主要功能与特性</h3>
+                        <p>DMA控制器的主要功能和特性：</p>
+                        
+                        <ul>
+                            <li><strong>独立数据搬运</strong>：在外设与存储器之间自动传输数据，无需CPU干预</li>
+                            <li><strong>多通道支持</strong>：STM32F103包含两个DMA控制器（DMA1有7个通道，DMA2有5个通道）</li>
+                            <li><strong>多种传输方向</strong>：支持外设↔存储器、存储器↔存储器的双向传输</li>
+                            <li><strong>灵活的数据宽度</strong>：支持8位、16位、32位数据传输</li>
+                            <li><strong>地址递增控制</strong>：可独立配置源地址和目标地址是否递增</li>
+                            <li><strong>优先级仲裁</strong>：多通道请求时，根据优先级和通道号决定响应次序</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- CubeMX使用部分 -->
+                    <div id="cubemx-quickstart" class="content-section">
+                        <h2><i class="fas fa-tools"></i> CubeMX使用</h2>
+                        <p>STM32CubeMX是ST官方提供的图形化配置工具，可以快速配置DMA参数，生成初始化代码。</p>
+                        
+                        <h3>DMA分配与配置</h3>
+                        <p>在CubeMX中配置DMA的基本步骤：</p>
+                        <ul>
+                            <li><strong>选择外设</strong>：在Pinout & Configuration页面，选择需要使用DMA的外设（如USART、ADC等）</li>
+                            <li><strong>启用DMA</strong>：在外设配置中，找到DMA Settings并启用DMA功能</li>
+                            <li><strong>配置DMA参数</strong>：设置传输方向、数据宽度、地址递增模式、优先级等</li>
+                            <li><strong>生成代码</strong>：生成包含DMA初始化的完整工程代码</li>
+                        </ul>
+                        
+                        <h3>CubeMX配置选项</h3>
+                        <p>在CubeMX中配置DMA时，常见的选项：</p>
+                        
+                        <table class="config-table">
+                            <thead>
+                                <tr>
+                                    <th>配置项</th>
+                                    <th>说明</th>
+                                    <th>常用选项</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>传输方向</td>
+                                    <td>数据传输方向选择</td>
+                                    <td>外设到存储器<br>存储器到外设<br>存储器到存储器</td>
+                                </tr>
+                                <tr>
+                                    <td>数据宽度</td>
+                                    <td>单次传输数据大小</td>
+                                    <td>字节（8位）<br>半字（16位）<br>字（32位）</td>
+                                </tr>
+                                <tr>
+                                    <td>地址递增</td>
+                                    <td>传输后地址是否递增</td>
+                                    <td>外设地址不递增<br>存储器地址递增<br>两者都递增</td>
+                                </tr>
+                                <tr>
+                                    <td>传输模式</td>
+                                    <td>DMA工作模式</td>
+                                    <td>正常模式（单次）<br>循环模式</td>
+                                </tr>
+                                <tr>
+                                    <td>优先级</td>
+                                    <td>通道优先级设置</td>
+                                    <td>低<br>中<br>高<br>最高</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h3>CubeMX生成的DMA初始化代码</h3>
+                        <p>CubeMX会自动生成DMA初始化代码，以下是典型示例：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// CubeMX生成的DMA初始化代码（以USART1_TX为例）
+static void MX_DMA_Init(void) {
+    __HAL_RCC_DMA1_CLK_ENABLE();  // 使能DMA1时钟
+    
+    // DMA控制器句柄配置
+    hdma_usart1_tx.Instance = DMA1_Channel4;
+    hdma_usart1_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;  // 存储器到外设
+    hdma_usart1_tx.Init.PeriphInc = DMA_PINC_DISABLE;      // 外设地址不递增
+    hdma_usart1_tx.Init.MemInc = DMA_MINC_ENABLE;          // 存储器地址递增
+    hdma_usart1_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_usart1_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_usart1_tx.Init.Mode = DMA_NORMAL;                 // 正常模式
+    hdma_usart1_tx.Init.Priority = DMA_PRIORITY_MEDIUM;    // 中优先级
+    
+    HAL_DMA_Init(&hdma_usart1_tx);
+    
+    // 关联DMA与USART1
+    __HAL_LINKDMA(&huart1, hdmatx, hdma_usart1_tx);
+    
+    // 配置DMA中断
+    HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
+}</code></pre>
+                        </div>
+                        
+                        <h3>使用CubeMX配置DMA的优势</h3>
+                        <ul>
+                            <li><strong>可视化配置</strong>：图形界面直观配置DMA通道和外设映射</li>
+                            <li><strong>参数验证</strong>：自动检查配置参数的有效性和合理性</li>
+                            <li><strong>代码自动生成</strong>：自动生成初始化代码和中断配置</li>
+                            <li><strong>通道冲突检测</strong>：自动检测DMA通道使用冲突并提示</li>
+                            <li><strong>多外设集成</strong>：方便配置多个外设的DMA传输需求</li>
+                        </ul>
+                    </div>
+                        
+                    <!-- HAL库使用部分 -->
+                    <div id="hal-library" class="content-section">
+                        <h2><i class="fas fa-code"></i> HAL库使用</h2>
+                        <p>STM32 HAL库提供了简洁易用的DMA操作接口，以下是如何使用HAL库配置和操作DMA的详细说明。</p>
+                        
+                        <h3>HAL主要函数列表</h3>
+                        <div class="code-block">
+                            <pre><code>// DMA HAL主要函数
+HAL_DMA_Init()                 // 初始化DMA通道
+HAL_DMA_DeInit()               // 反初始化DMA通道
+HAL_DMA_Start()                // 启动DMA传输（轮询方式）
+HAL_DMA_Start_IT()             // 启动DMA传输（中断方式）
+HAL_DMA_Stop()                 // 停止DMA传输
+HAL_DMA_PollForTransfer()      // 轮询等待传输完成
+HAL_DMA_IRQHandler()           // DMA中断处理函数
+HAL_DMA_GetState()             // 获取DMA状态
+HAL_DMA_GetError()             // 获取DMA错误信息</code></pre>
+                        </div>
+                        
+                        <h3>常用HAL函数使用示例</h3>
+                        <p>DMA基本操作函数示例：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// DMA HAL函数使用示例
+#include "stm32f1xx_hal.h"
+
+DMA_HandleTypeDef hdma_adc1;
+
+// 初始化DMA通道
+void DMA_ADC_Init(void) {
+    // 使能DMA时钟
+    __HAL_RCC_DMA1_CLK_ENABLE();
+    
+    // 配置DMA参数
+    hdma_adc1.Instance = DMA1_Channel1;
+    hdma_adc1.Init.Direction = DMA_PERIPH_TO_MEMORY;      // 外设到存储器
+    hdma_adc1.Init.PeriphInc = DMA_PINC_DISABLE;          // 外设地址不递增
+    hdma_adc1.Init.MemInc = DMA_MINC_ENABLE;              // 存储器地址递增
+    hdma_adc1.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    hdma_adc1.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+    hdma_adc1.Init.Mode = DMA_CIRCULAR;                   // 循环模式
+    hdma_adc1.Init.Priority = DMA_PRIORITY_HIGH;          // 高优先级
+    
+    // 初始化DMA
+    HAL_DMA_Init(&hdma_adc1);
+}
+
+// 启动DMA传输
+uint16_t adc_buffer[100];
+void Start_DMA_Transfer(void) {
+    // 启动ADC DMA传输
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buffer, 100);
+}
+
+// 停止DMA传输
+void Stop_DMA_Transfer(void) {
+    HAL_ADC_Stop_DMA(&hadc1);
+}</code></pre>
+                        </div>
+                        
+                        <h3>DMA配置结构体</h3>
+                        <p>DMA配置通过<code>DMA_InitTypeDef</code>结构体完成：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// DMA_InitTypeDef 结构体定义
+typedef struct {
+    uint32_t Direction;              // 传输方向
+    uint32_t PeriphInc;              // 外设地址增量模式
+    uint32_t MemInc;                 // 存储器地址增量模式
+    uint32_t PeriphDataAlignment;    // 外设数据宽度
+    uint32_t MemDataAlignment;       // 存储器数据宽度
+    uint32_t Mode;                   // 工作模式
+    uint32_t Priority;               // 通道优先级
+} DMA_InitTypeDef;
+
+// 传输方向（Direction）可选值：
+// DMA_PERIPH_TO_MEMORY      // 外设到存储器
+// DMA_MEMORY_TO_PERIPH      // 存储器到外设
+// DMA_MEMORY_TO_MEMORY      // 存储器到存储器
+
+// 工作模式（Mode）可选值：
+// DMA_NORMAL                // 正常模式（单次传输）
+// DMA_CIRCULAR              // 循环模式</code></pre>
+                        </div>
+                        
+                        <h3>DMA中断配置示例</h3>
+                        <p>配置DMA中断的完整示例：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// DMA中断配置示例
+#include "stm32f1xx_hal.h"
+
+DMA_HandleTypeDef hdma_usart1_rx;
+
+// DMA初始化，启用中断
+void DMA_USART_RX_Init(void) {
+    // 配置DMA参数，启用传输完成中断
+    hdma_usart1_rx.Instance = DMA1_Channel5;
+    hdma_usart1_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_usart1_rx.Init.Mode = DMA_CIRCULAR;
+    hdma_usart1_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_usart1_rx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_usart1_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_usart1_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_usart1_rx.Init.Priority = DMA_PRIORITY_MEDIUM;
+    
+    // 初始化DMA
+    HAL_DMA_Init(&hdma_usart1_rx);
+    
+    // 配置中断优先级
+    HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 1, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
+}
+
+// DMA中断处理函数
+void DMA1_Channel5_IRQHandler(void) {
+    HAL_DMA_IRQHandler(&hdma_usart1_rx);
+}
+
+// DMA传输完成回调函数
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+    if(huart->Instance == USART1) {
+        // USART1接收数据完成，可以处理数据
+        Process_USART_Data();
+        
+        // 如果需要继续接收，可以重新启动DMA
+        HAL_UART_Receive_DMA(&huart1, rx_buffer, BUFFER_SIZE);
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="content-section">
+                        <h2><i class="fas fa-cogs"></i> 配置与使用</h2>
+                        <p>DMA的正确配置是确保高效数据传输的基础。以下是DMA配置的详细步骤和最佳实践。</p>
+                        
+                        <h3>DMA配置步骤</h3>
+                        <ol>
+                            <li><strong>时钟使能</strong>：通过RCC寄存器使能对应DMA控制器的时钟</li>
+                            <li><strong>参数设置</strong>：根据应用需求设置传输方向、数据宽度、地址递增模式等</li>
+                            <li><strong>地址配置</strong>：配置源地址和目标地址寄存器</li>
+                            <li><strong>传输数量</strong>：设置要传输的数据项数量</li>
+                            <li><strong>中断配置</strong>：如需中断功能，配置NVIC优先级和中断使能</li>
+                            <li><strong>外设关联</strong>：关联DMA与外设，使能外设的DMA请求</li>
+                            <li><strong>启动传输</strong>：使能DMA通道开始传输</li>
+                        </ol>
+                        
+                        <h3>典型应用配置</h3>
+                        <p>DMA在典型应用中的配置示例：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// ADC多通道采样DMA配置示例
+void ADC_MultiChannel_DMA_Config(void) {
+    ADC_HandleTypeDef hadc1;
+    DMA_HandleTypeDef hdma_adc1;
+    
+    // 配置ADC
+    hadc1.Instance = ADC1;
+    hadc1.Init.ScanConvMode = ENABLE;           // 扫描模式
+    hadc1.Init.ContinuousConvMode = ENABLE;     // 连续转换模式
+    hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+    hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+    hadc1.Init.NbrOfConversion = 3;            // 3个通道
+    
+    // 配置DMA
+    hdma_adc1.Instance = DMA1_Channel1;
+    hdma_adc1.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_adc1.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_adc1.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_adc1.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+    hdma_adc1.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+    hdma_adc1.Init.Mode = DMA_CIRCULAR;
+    hdma_adc1.Init.Priority = DMA_PRIORITY_HIGH;
+    
+    HAL_DMA_Init(&hdma_adc1);
+    __HAL_LINKDMA(&hadc1, DMA_Handle, hdma_adc1);
+    
+    // 配置ADC通道
+    ADC_ChannelConfTypeDef sConfig = {0};
+    sConfig.Channel = ADC_CHANNEL_0;
+    sConfig.Rank = ADC_REGULAR_RANK_1;
+    sConfig.SamplingTime = ADC_SAMPLETIME_71CYCLES_5;
+    HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+    
+    // 配置更多通道...
+    
+    // 启动ADC DMA连续采样
+    uint16_t adc_values[3];
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_values, 3);
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <!-- 详细信息部分 -->
+                    <div id="details" class="content-section">
+                        <h2><i class="fas fa-file-alt"></i> 详细信息</h2>
+                        <p>深入了解DMA的内部架构、技术特性和高级功能。</p>
+                        
+                        <h3>DMA基本结构与特性</h3>
+                        <p>STM32F103系列通常包含两个DMA控制器：</p>
+                        
+                        <table class="config-table">
+                            <thead>
+                                <tr>
+                                    <th>特性</th>
+                                    <th>DMA1</th>
+                                    <th>DMA2</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>通道数量</td>
+                                    <td>7个独立通道</td>
+                                    <td>5个独立通道</td>
+                                </tr>
+                                <tr>
+                                    <td>数据传输方向</td>
+                                    <td>外设 ↔ 存储器</td>
+                                    <td>外设 ↔ 存储器</td>
+                                </tr>
+                                <tr>
+                                    <td>存储器到存储器模式</td>
+                                    <td>不支持</td>
+                                    <td>支持</td>
+                                </tr>
+                                <tr>
+                                    <td>典型连接外设</td>
+                                    <td>ADC1, SPI1/I2S2, USART1/2/3, I2C1/2, TIM1/2/3/4</td>
+                                    <td>SPI/I2S3, UART4, TIM5/6/7/8, ADC3</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <p>对于常见型号STM32F103C8T6，只有DMA1可用。每个DMA通道同一时间只能服务于一个外设，当多个请求同时到达时，由仲裁器根据软件设置的优先级（共4级）和硬件默认的通道号顺序来决定响应次序。</p>
+                        
+                        <h3>DMA核心配置参数</h3>
+                        <p>在使用时，需要明确以下几个核心参数，它们决定了DMA如何工作：</p>
+                        <ul>
+                            <li><strong>传输方向</strong>：数据从哪里搬到哪里（如：从内存到串口发送寄存器）</li>
+                            <li><strong>地址递增</strong>：传输完成后，外设地址通常不变，而内存地址通常递增以便处理数组</li>
+                            <li><strong>数据宽度</strong>：单次传输的数据量，需与源和目的地址的数据宽度匹配（如8位、16位）</li>
+                            <li><strong>传输模式</strong>：
+                                <ul>
+                                    <li>单次模式：传输指定次数后停止</li>
+                                    <li>循环模式：传输完成后自动重装参数并重新开始，常用于处理持续数据流（如ADC持续采样）</li>
+                                </ul>
+                            </li>
+                            <li><strong>传输数量</strong>：一次DMA请求需要传输的数据总数</li>
+                        </ul>
+                        
+                        <h3>典型应用场景与要点</h3>
+                        <p>DMA在实际项目中应用广泛，下面是一些典型例子和关键点：</p>
+                        <ul>
+                            <li><strong>串口（USART）大数据量收发</strong>：发送时，DMA将内存中的待发送数据自动搬运到串口发送数据寄存器；接收时，则自动将接收到的数据存入指定内存数组，无需CPU频繁介入</li>
+                            <li><strong>ADC规则转换</strong>：配置ADC进行多通道或连续采样，并开启DMA。每次ADC转换完成，数据会自动通过DMA存入内存，极大提高了采样效率</li>
+                            <li><strong>SPI/I2C通信</strong>：在驱动TFT屏幕、读取外部存储器等需要高速传输数据的场景下，利用SPI的DMA可以显著提升刷屏速度，减少CPU占用</li>
+                            <li><strong>定时器（TIM）触发</strong>：用定时器触发DMA，可以用于生成精确的脉冲序列，例如驱动WS2812这类LED灯带</li>
+                        </ul>
+                        
+                        <h3>故障排除与调试技巧</h3>
+                        <p>常见DMA问题及解决方法：</p>
+                        <ul>
+                            <li><strong>DMA不工作</strong>：检查DMA时钟是否使能，通道配置是否正确，外设DMA请求是否使能</li>
+                            <li><strong>数据传输错误</strong>：检查源地址和目标地址是否对齐，数据宽度是否匹配，地址递增模式是否正确</li>
+                            <li><strong>中断不触发</strong>：确认DMA中断使能，检查NVIC优先级，验证传输完成条件</li>
+                            <li><strong>性能不达标</strong>：优化传输模式（使用循环模式），提高优先级，检查时钟配置</li>
+                            <li><strong>数据覆盖</strong>：确保缓冲区足够大，及时处理数据或使用双缓冲区技术</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- 模块特性卡片展示 -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-star"></i> 模块核心特性</h2>
+                        <div class="module-features">
+                            <div class="feature-card">
+                                <h4><i class="fas fa-sliders-h"></i> 高度可配置</h4>
+                                <p>支持多种传输方向、数据宽度、地址递增模式和工作模式，可根据应用需求灵活调整。</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4><i class="fas fa-bolt"></i> 高效传输</h4>
+                                <p>无需CPU干预的数据传输，释放CPU资源处理其他任务，显著提升系统整体性能。</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4><i class="fas fa-exchange-alt"></i> 多通道支持</h4>
+                                <p>多个独立通道可同时工作，支持优先级仲裁，满足多外设并发传输需求。</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4><i class="fas fa-shield-alt"></i> 可靠稳定</h4>
+                                <p>完善的错误检测和处理机制，支持传输完成、半传输完成和传输错误中断。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="demo.html" class="back-button">
+                        <i class="fas fa-arrow-left"></i> 返回主页面
+                    </a>
+                </div>
+                
+                <!-- 右侧侧边栏 - 模块详情 -->
+                <div class="sidebar-right">
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-microchip"></i> 技术参数</h3>
+                        <table class="params-table">
+                            <thead>
+                                <tr>
+                                    <th>参数</th>
+                                    <th>值/规格</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>控制器数量</td>
+                                    <td>2个（DMA1/DMA2）</td>
+                                </tr>
+                                <tr>
+                                    <td>通道数量</td>
+                                    <td>DMA1：7通道，DMA2：5通道</td>
+                                </tr>
+                                <tr>
+                                    <td>传输方向</td>
+                                    <td>外设↔存储器，存储器↔存储器</td>
+                                </tr>
+                                <tr>
+                                    <td>数据宽度</td>
+                                    <td>8位、16位、32位</td>
+                                </tr>
+                                <tr>
+                                    <td>地址递增</td>
+                                    <td>独立控制源/目标地址递增</td>
+                                </tr>
+                                <tr>
+                                    <td>传输模式</td>
+                                    <td>单次传输、循环传输</td>
+                                </tr>
+                                <tr>
+                                    <td>优先级</td>
+                                    <td>4个级别（低、中、高、最高）</td>
+                                </tr>
+                                <tr>
+                                    <td>中断类型</td>
+                                    <td>传输完成、半传输、传输错误</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-list-alt"></i> 主要寄存器</h3>
+                        <ul class="register-list">
+                            <li>
+                                <span class="register-name">DMA_ISR</span>
+                                <span class="register-desc">中断状态寄存器，查询各通道中断状态标志</span>
+                            </li>
+                            <li>
+                                <span class="register-name">DMA_IFCR</span>
+                                <span class="register-desc">中断标志清除寄存器，清除中断标志</span>
+                            </li>
+                            <li>
+                                <span class="register-name">DMA_CCRx</span>
+                                <span class="register-desc">通道配置寄存器，配置传输参数和工作模式</span>
+                            </li>
+                            <li>
+                                <span class="register-name">DMA_CNDTRx</span>
+                                <span class="register-desc">传输数量寄存器，设置传输数据项数量</span>
+                            </li>
+                            <li>
+                                <span class="register-name">DMA_CPARx</span>
+                                <span class="register-desc">外设地址寄存器，设置外设数据寄存器地址</span>
+                            </li>
+                            <li>
+                                <span class="register-name">DMA_CMARx</span>
+                                <span class="register-desc">存储器地址寄存器，设置存储器地址</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-plug"></i> 工作模式</h3>
+                        <div class="pin-functions">
+                            <span class="pin-tag">正常模式</span>
+                            <span class="pin-tag">循环模式</span>
+                            <span class="pin-tag">外设到存储器</span>
+                            <span class="pin-tag">存储器到外设</span>
+                            <span class="pin-tag">存储器到存储器</span>
+                            <span class="pin-tag">单次传输</span>
+                            <span class="pin-tag">连续传输</span>
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-exclamation-triangle"></i> 注意事项</h3>
+                        <p style="color: #bbb; font-size: 0.95rem; line-height: 1.6; margin-top: 15px;">
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            注意通道映射：每个外设的DMA请求都固定映射到特定的DMA通道上<br><br>
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            内存对齐：数据宽度应与源和目标地址的自然对齐方式匹配<br><br>
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            缓冲区管理：循环模式或双缓冲模式下，防止数据覆盖或读取冲突<br><br>
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            传输过程中不要修改CNDTRx寄存器
+                        </p>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-history"></i> 典型应用场景</h3>
+                        <p style="color: #bbb; font-size: 0.95rem; line-height: 1.6; margin-top: 15px;">
+                            • 串口大数据量收发<br>
+                            • ADC连续采样数据搬运<br>
+                            • SPI/I2C高速通信<br>
+                            • 内存数据批量搬运<br>
+                            • 图像数据传输<br>
+                            • 音频数据流处理<br>
+                            • 定时器触发脉冲生成
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>STM32F103 DMA控制器模块详情 | 包含CubeMX配置、HAL库使用和技术参数</p>
+            <p style="margin-top: 10px; font-size: 0.8rem;">提示：DMA控制器能显著减轻CPU负担，提升系统实时性和效率</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 页面加载动画
+            document.body.style.opacity = 0;
+            document.body.style.transition = 'opacity 0.8s ease';
+            
+            setTimeout(() => {
+                document.body.style.opacity = 1;
+            }, 100);
+            
+            // 为引脚标签添加悬停效果
+            const pinTags = document.querySelectorAll('.pin-tag');
+            pinTags.forEach(tag => {
+                tag.addEventListener('mouseenter', function() {
+                    this.style.boxShadow = '0 0 10px rgba(100, 100, 100, 0.5)';
+                });
+                
+                tag.addEventListener('mouseleave', function() {
+                    this.style.boxShadow = 'none';
+                });
+            });
+            
+            // 为表格行添加悬停效果
+            const tableRows = document.querySelectorAll('.params-table tr, .config-table tr');
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#2a2a2a';
+                });
+                
+                row.addEventListener('mouseleave', function() {
+                    if (this.rowIndex % 2 === 0) {
+                        this.style.backgroundColor = '#1a1a1a';
+                    } else {
+                        this.style.backgroundColor = '';
+                    }
+                });
+            });
+            
+            // 为返回按钮添加点击效果
+            const backButton = document.querySelector('.back-button');
+            if (backButton) {
+                backButton.addEventListener('click', function(e) {
+                    // 添加点击反馈
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                });
+            }
+            
+            // 为导航按钮添加点击效果
+            const navButtons = document.querySelectorAll('.nav-button');
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // 添加点击反馈
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                });
+            });
+        });
+        
+        // 滚动到指定部分的函数
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                // 平滑滚动到目标位置
+                element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                // 添加视觉反馈
+                element.style.backgroundColor = '#2a2a2a';
+                setTimeout(() => {
+                    element.style.backgroundColor = '';
+                }, 1500);
+            }
+        }
+    </script>
+</body>
+</html>

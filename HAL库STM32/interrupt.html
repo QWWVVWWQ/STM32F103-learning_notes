@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中断模块详情 - STM32F103</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #0a0a0a;
+            color: #f0f0f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 头部样式 */
+        header {
+            padding: 30px 0 20px;
+            border-bottom: 1px solid #333;
+            margin-bottom: 40px;
+        }
+        
+        /* 标题区域 */
+        h1 {
+            color: #fff;
+            font-size: 2.8rem;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+            text-align: right;
+        }
+        
+        /* 副标题与按钮容器 */
+        .subtitle-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .module-subtitle {
+            color: #aaa;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            text-align: right;
+            flex-shrink: 0;
+            max-width: 500px;
+        }
+        
+        /* 面包屑导航 */
+        .breadcrumb {
+            text-align: right;
+            margin-bottom: 20px;
+            color: #888;
+            font-size: 0.95rem;
+        }
+        
+        .breadcrumb a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .breadcrumb a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+        
+        /* 新增：按钮容器 - 左侧 */
+        .header-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        /* 导航按钮样式 */
+        .nav-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #222;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border: 1px solid #444;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .nav-button:hover {
+            background-color: #333;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-button.cubemx {
+            border-left: 4px solid #ff9800;
+        }
+        
+        .nav-button.hal {
+            border-left: 4px solid #4ec9b0;
+        }
+        
+        .nav-button.details {
+            border-left: 4px solid #569cd6;
+        }
+        
+        /* 主要内容布局 */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 40px;
+            margin-bottom: 60px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 左侧内容区域 */
+        .content-left {
+            background-color: #111;
+            border-radius: 15px;
+            padding: 40px;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 右侧侧边栏 - 模块详情 */
+        .sidebar-right {
+            background-color: #111;
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateX(30px);
+            animation: slideInRight 1s ease 0.3s forwards;
+        }
+        
+        @keyframes slideInRight {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* 内容区域样式 */
+        .content-section {
+            margin-bottom: 40px;
+        }
+        
+        .content-section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #fff;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .content-section h3 {
+            font-size: 1.4rem;
+            margin: 25px 0 15px;
+            color: #ddd;
+        }
+        
+        .content-section p {
+            color: #bbb;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+        
+        .content-section ul, .content-section ol {
+            padding-left: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .content-section li {
+            color: #bbb;
+            line-height: 1.7;
+            margin-bottom: 8px;
+        }
+        
+        /* 代码块样式 */
+        .code-block {
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #666;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        
+        .code-block pre {
+            color: #ddd;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        
+        .code-block code {
+            color: #4ec9b0;
+        }
+        
+        /* 配置选项表格 */
+        .config-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .config-table th {
+            background-color: #222;
+            color: #fff;
+            text-align: left;
+            padding: 12px 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #333;
+        }
+        
+        .config-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #333;
+            color: #bbb;
+        }
+        
+        .config-table tr:nth-child(even) {
+            background-color: #1a1a1a;
+        }
+        
+        .config-table tr:hover {
+            background-color: #222;
+        }
+        
+        /* 侧边栏样式 - 模块详情 */
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+        
+        .sidebar-section h3 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #fff;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* 技术参数表格 */
+        .params-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .params-table th {
+            background-color: #222;
+            color: #fff;
+            text-align: left;
+            padding: 12px 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #333;
+        }
+        
+        .params-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #333;
+            color: #bbb;
+        }
+        
+        .params-table tr:nth-child(even) {
+            background-color: #1a1a1a;
+        }
+        
+        .params-table tr:hover {
+            background-color: #222;
+        }
+        
+        /* 寄存器列表 */
+        .register-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .register-list li {
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background-color: #1a1a1a;
+            border-radius: 6px;
+            border-left: 3px solid #666;
+            transition: all 0.3s ease;
+        }
+        
+        .register-list li:hover {
+            background-color: #222;
+            border-left-color: #aaa;
+            transform: translateX(5px);
+        }
+        
+        .register-name {
+            font-weight: bold;
+            color: #fff;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .register-desc {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        /* 功能标签 */
+        .pin-functions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .pin-tag {
+            background-color: #1a1a1a;
+            color: #ccc;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+        }
+        
+        .pin-tag:hover {
+            background-color: #222;
+            border-color: #666;
+            transform: translateY(-3px);
+        }
+        
+        /* 模块特性卡片 */
+        .module-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .feature-card {
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            padding: 20px;
+            border-top: 4px solid #666;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: #aaa;
+        }
+        
+        .feature-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feature-card p {
+            color: #bbb;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        /* 返回按钮 */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #222;
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid #444;
+        }
+        
+        .back-button:hover {
+            background-color: #333;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 页脚 */
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 60px;
+            border-top: 1px solid #333;
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr 300px;
+            }
+            
+            .content-left {
+                padding: 30px;
+            }
+            
+            .sidebar-right {
+                padding: 25px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .sidebar-right {
+                order: -1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .module-subtitle {
+                font-size: 1rem;
+            }
+            
+            .content-left, .sidebar-right {
+                padding: 25px;
+            }
+            
+            .module-features {
+                grid-template-columns: 1fr;
+            }
+            
+            .params-table, .config-table {
+                font-size: 0.9rem;
+            }
+            
+            .params-table th, .params-table td,
+            .config-table th, .config-table td {
+                padding: 10px 12px;
+            }
+            
+            .subtitle-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .module-subtitle {
+                text-align: left;
+                width: 100%;
+            }
+            
+            .header-buttons {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .breadcrumb {
+                text-align: left;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .content-left, .sidebar-right {
+                padding: 20px;
+            }
+            
+            .content-section h2 {
+                font-size: 1.6rem;
+            }
+            
+            .content-section h3 {
+                font-size: 1.3rem;
+            }
+            
+            .sidebar-section h3 {
+                font-size: 1.3rem;
+            }
+            
+            .header-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .nav-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="breadcrumb">
+                <a href="demo.html">主页</a> &gt; <span>中断模块详情</span>
+            </div>
+            
+            <h1>中断系统 (Interrupt)</h1>
+            
+            <!-- 副标题与按钮容器 -->
+            <div class="subtitle-container">
+                <!-- 新增的按钮容器 - 左侧 -->
+                <div class="header-buttons">
+                    <button class="nav-button cubemx" onclick="scrollToSection('cubemx-quickstart')">
+                        <i class="fas fa-tools"></i> CubeMX使用
+                    </button>
+                    <button class="nav-button hal" onclick="scrollToSection('hal-library')">
+                        <i class="fas fa-code"></i> HAL库使用
+                    </button>
+                    <button class="nav-button details" onclick="scrollToSection('details')">
+                        <i class="fas fa-info-circle"></i> 详细信息
+                    </button>
+                </div>
+                
+                <!-- 副标题 - 右侧 -->
+                <p class="module-subtitle">STM32F103中断控制器(NVIC)、外部中断(EXTI)、SysTick及外设中断机制详解</p>
+            </div>
+        </header>
+        
+        <main>
+            <div class="main-content">
+                <!-- 左侧内容区域 -->
+                <div class="content-left">
+                    <div class="content-section">
+                        <h2><i class="fas fa-info-circle"></i> 概述</h2>
+                        <p>STM32F103中断系统是ARM Cortex-M3内核的核心功能之一，负责处理所有外设和外部事件的中断请求。支持嵌套中断、优先级管理和多种中断源，是实现实时响应的关键技术。</p>
+                        
+                        <h3>主要特性</h3>
+                        <ul>
+                            <li><strong>嵌套向量中断控制器(NVIC)</strong>：支持256级中断优先级，16个可编程优先级</li>
+                            <li><strong>外部中断/事件控制器(EXTI)</strong>：支持20个外部/内部中断线，可配置边沿触发</li>
+                            <li><strong>系统滴答定时器(SysTick)</strong>：为操作系统提供时基，可产生周期性中断</li>
+                            <li><strong>中断与事件分离</strong>：事件不触发CPU中断，直接驱动硬件操作</li>
+                            <li><strong>低功耗唤醒</strong>：部分中断可将MCU从睡眠/停止/待机模式唤醒</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- CubeMX使用部分 -->
+                    <div id="cubemx-quickstart" class="content-section">
+                        <h2><i class="fas fa-tools"></i> CubeMX使用</h2>
+                        <p>使用CubeMX配置STM32F103的中断（尤其是外部中断）可以快速完成初始化。核心流程是在CubeMX中配置引脚、中断触发条件和NVIC（嵌套向量中断控制器），然后在代码中编写中断回调函数来实现你的功能。</p>
+                        
+                        <h3>中断配置步骤</h3>
+                        <p>在CubeMX中配置一个外部中断（以按键为例）的主要步骤：</p>
+                        
+                        <table class="config-table">
+                            <thead>
+                                <tr>
+                                    <th>步骤</th>
+                                    <th>操作项</th>
+                                    <th>关键配置与说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>系统基础</td>
+                                    <td>选择STM32F103系列芯片，配置HSE外部高速时钟至72MHz，配置调试接口为Serial Wire</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>外设配置</td>
+                                    <td>将目标引脚（如PA0）模式设置为GPIO_EXTIx，根据电路设置上拉/下拉，选择触发边沿</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>配置NVIC</td>
+                                    <td>在NVIC Configuration中使能对应的EXTI中断线，设置抢占优先级和子优先级</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>生成代码</td>
+                                    <td>设置工程名、路径和IDE（如MDK-ARM V5），生成初始化代码</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h3>CubeMX生成的初始化代码</h3>
+                        <p>CubeMX会自动生成外部中断初始化代码，以下是典型示例：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// CubeMX生成的外部中断初始化代码
+static void MX_GPIO_Init(void)
+{
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    
+    // 使能GPIOA时钟
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    
+    // 配置PA0为外部中断
+    GPIO_InitStruct.Pin = GPIO_PIN_0;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;  // 下降沿触发
+    GPIO_InitStruct.Pull = GPIO_PULLUP;           // 上拉电阻
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    
+    // 配置NVIC中断优先级
+    HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+}</code></pre>
+                        </div>
+                        
+                        <h3>中断回调函数实现</h3>
+                        <p>HAL库使用了统一的中断回调机制。对于外部中断（EXTI），所有引脚的中断最终都会调用同一个回调函数 <code>HAL_GPIO_EXTI_Callback</code>。你需要在函数内部判断是哪个引脚触发的中断。</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// 外部中断回调函数实现
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    /* 判断具体是哪个引脚触发了中断 */
+    if(GPIO_Pin == GPIO_PIN_0) // 假设配置的是PA0
+    {
+        // 在这里编写你的中断处理逻辑，例如：
+        HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin); // 翻转LED状态
+        // 注意：中断服务函数中应避免使用长延时（如HAL_Delay）
+    }
+    // 如果配置了多个中断引脚，可以继续用else if判断
+    // else if (GPIO_Pin == GPIO_PIN_1) { ... }
+}</code></pre>
+                        </div>
+                        
+                        <h3>关键配置详解</h3>
+                        <ul>
+                            <li><strong>触发边沿选择</strong>：
+                                <ul>
+                                    <li>下降沿触发：常用于按键（按键按下时，引脚从高电平变为低电平）</li>
+                                    <li>上升沿触发：常用于按键释放或某些传感器信号</li>
+                                    <li>双边沿触发：电平变化就触发</li>
+                                </ul>
+                            </li>
+                            <li><strong>NVIC优先级</strong>：
+                                <ul>
+                                    <li>抢占优先级：高抢占优先级的中断可以打断正在执行的低抢占优先级中断（嵌套）</li>
+                                    <li>子优先级：当两个中断的抢占优先级相同时，子优先级高的先执行</li>
+                                    <li>分组设置：通过<code>HAL_NVIC_SetPriorityGrouping()</code>函数设置优先级分组</li>
+                                </ul>
+                            </li>
+                            <li><strong>中断处理流程</strong>：
+                                <ol>
+                                    <li>外部事件触发中断</li>
+                                    <li>芯片硬件跳转到统一的中断服务函数（如<code>EXTI0_IRQHandler</code>）</li>
+                                    <li>该服务函数调用<code>HAL_GPIO_EXTI_IRQHandler()</code>来清除中断标志位</li>
+                                    <li><code>HAL_GPIO_EXTI_IRQHandler()</code>内部再调用你编写的<code>HAL_GPIO_EXTI_Callback()</code></li>
+                                </ol>
+                            </li>
+                        </ul>
+                        
+                        <h3>使用CubeMX配置的优势</h3>
+                        <ul>
+                            <li><strong>可视化配置</strong>：图形界面直观，避免寄存器配置错误</li>
+                            <li><strong>代码自动生成</strong>：自动生成初始化代码和HAL库函数调用</li>
+                            <li><strong>引脚冲突检测</strong>：自动检测引脚功能冲突并提示</li>
+                            <li><strong>NVIC自动配置</strong>：图形化配置中断优先级和分组</li>
+                            <li><strong>项目管理</strong>：支持生成多种IDE工程文件（Keil、IAR、Eclipse等）</li>
+                        </ul>
+                        
+                        <h3>注意事项</h3>
+                        <ul>
+                            <li><strong>中断嵌套</strong>：虽然CubeMX和HAL库支持配置中断嵌套（高抢占优先级中断打断低优先级中断），但在实际应用中需谨慎评估，不当使用可能导致逻辑复杂或系统不稳定。</li>
+                            <li><strong>按键消抖</strong>：机械按键在按下时会产生抖动，可能误触发多次中断。不建议在中断回调函数中使用<code>HAL_Delay()</code>这类阻塞延时来消抖。更好的做法是：在中断中仅设置一个标志位，然后在主循环中延时并检查该标志位来处理按键。</li>
+                            <li><strong>外设中断</strong>：除了GPIO外部中断，其他外设（如定时器、串口、ADC）的中断配置流程类似：在CubeMX中使能外设和其中断、配置NVIC，然后在代码中找到并重写对应的回调函数（例如定时器更新中断的回调函数是<code>HAL_TIM_PeriodElapsedCallback</code>）。</li>
+                        </ul>
+                    </div>
+                        
+                    <!-- HAL库使用部分 -->
+                    <div id="hal-library" class="content-section">
+                        <h2><i class="fas fa-code"></i> HAL库使用</h2>
+                        <p>STM32 HAL库提供了一套完整的中断管理API，简化了中断配置和处理的复杂性。</p>
+                        
+                        <h3>1. NVIC中断控制函数</h3>
+                        <p>位于<code>stm32f1xx_hal_cortex.c</code>中的核心中断控制函数：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// 设置中断优先级
+void HAL_NVIC_SetPriority(IRQn_Type IRQn, uint32_t PreemptPriority, uint32_t SubPriority);
+
+// 使能/禁用中断
+void HAL_NVIC_EnableIRQ(IRQn_Type IRQn);
+void HAL_NVIC_DisableIRQ(IRQn_Type IRQn);
+
+// 中断挂起管理
+void HAL_NVIC_SetPendingIRQ(IRQn_Type IRQn);
+void HAL_NVIC_ClearPendingIRQ(IRQn_Type IRQn);
+uint32_t HAL_NVIC_GetPendingIRQ(IRQn_Type IRQn);
+
+// 获取中断优先级
+uint32_t HAL_NVIC_GetPriority(IRQn_Type IRQn);</code></pre>
+                        </div>
+                        
+                        <h3>2. 外设中断处理流程</h3>
+                        <p>典型的外设中断配置和使用流程：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// 1. 初始化外设
+HAL_UART_Init(&huart1);
+
+// 2. 配置中断优先级
+HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
+
+// 3. 使能中断
+HAL_NVIC_EnableIRQ(USART1_IRQn);
+
+// 4. 启动中断模式传输
+HAL_UART_Transmit_IT(&huart1, txData, sizeof(txData));
+
+// 5. 在stm32f1xx_it.c中调用中断处理函数
+void USART1_IRQHandler(void) {
+    HAL_UART_IRQHandler(&huart1);
+}
+
+// 6. 实现回调函数（在用户文件中）
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
+    if(huart->Instance == USART1) {
+        // 发送完成处理
+    }
+}</code></pre>
+                        </div>
+                        
+                        <h3>3. 中断相关宏函数</h3>
+                        <div class="code-block">
+                            <pre><code>// 使能/禁用特定中断标志
+__HAL_UART_ENABLE_IT(&huart1, UART_IT_TXE);    // 使能发送中断
+__HAL_UART_DISABLE_IT(&huart1, UART_IT_RXNE);  // 禁用接收中断
+
+// 检查中断标志
+if(__HAL_UART_GET_FLAG(&huart1, UART_FLAG_TXE)) {
+    // 发送寄存器为空
+}
+
+// 清除中断标志
+__HAL_UART_CLEAR_FLAG(&huart1, UART_FLAG_TC);  // 清除发送完成标志</code></pre>
+                        </div>
+                        
+                        <h3>4. 常用外设中断API</h3>
+                        <ul>
+                            <li><strong>UART</strong>: <code>HAL_UART_Transmit_IT()</code>, <code>HAL_UART_Receive_IT()</code>, <code>HAL_UART_IRQHandler()</code></li>
+                            <li><strong>ADC</strong>: <code>HAL_ADC_Start_IT()</code>, <code>HAL_ADC_ConvCpltCallback()</code></li>
+                            <li><strong>TIM</strong>: <code>HAL_TIM_Base_Start_IT()</code>, <code>HAL_TIM_OC_Start_IT()</code></li>
+                            <li><strong>SPI</strong>: <code>HAL_SPI_Transmit_IT()</code>, <code>HAL_SPI_Receive_IT()</code></li>
+                            <li><strong>I2C</strong>: <code>HAL_I2C_Master_Transmit_IT()</code>, <code>HAL_I2C_Slave_Receive_IT()</code></li>
+                        </ul>
+                        
+                        <h3>中断优先级配置示例</h3>
+                        <div class="code-block">
+                            <pre><code>// 配置中断优先级分组（通常在main函数开始处调用一次）
+HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
+
+// 设置USART1中断优先级（抢占优先级0，子优先级0）
+HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
+
+// 设置EXTI0中断优先级（抢占优先级1，子优先级0）
+HAL_NVIC_SetPriority(EXTI0_IRQn, 1, 0);
+
+// 使能中断
+HAL_NVIC_EnableIRQ(USART1_IRQn);
+HAL_NVIC_EnableIRQ(EXTI0_IRQn);</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="content-section">
+                        <h2><i class="fas fa-cogs"></i> 配置与使用</h2>
+                        <p>正确配置中断是确保系统稳定运行的关键。以下是中断配置的标准流程和注意事项。</p>
+                        
+                        <h3>中断配置步骤</h3>
+                        <ol>
+                            <li><strong>外设初始化</strong>: 调用<code>HAL_PPP_Init()</code>初始化外设</li>
+                            <li><strong>中断优先级配置</strong>: 使用<code>HAL_NVIC_SetPriority()</code>设置抢占优先级和子优先级</li>
+                            <li><strong>中断使能</strong>: 使用<code>HAL_NVIC_EnableIRQ()</code>使能NVIC中断</li>
+                            <li><strong>外设中断使能</strong>: 在外设寄存器中使能特定中断源</li>
+                            <li><strong>启动中断模式</strong>: 调用<code>HAL_PPP_Start_IT()</code>启动中断模式操作</li>
+                            <li><strong>实现中断服务程序</strong>: 在<code>stm32f1xx_it.c</code>中添加ISR</li>
+                            <li><strong>实现回调函数</strong>: 重写HAL库的弱定义回调函数</li>
+                        </ol>
+                        
+                        <h3>中断向量表</h3>
+                        <p>STM32F103的中断向量表位于Flash起始地址(0x08000000)，包含复位、NMI、硬故障、SysTick及所有外设中断的入口地址。</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// 典型的中断向量表定义（启动文件 startup_stm32f103xe.s）
+__Vectors   DCD     __initial_sp              ; Top of Stack
+            DCD     Reset_Handler             ; Reset Handler
+            DCD     NMI_Handler               ; NMI Handler
+            DCD     HardFault_Handler         ; Hard Fault Handler
+            DCD     MemManage_Handler         ; MPU Fault Handler
+            DCD     BusFault_Handler          ; Bus Fault Handler
+            DCD     UsageFault_Handler        ; Usage Fault Handler
+            DCD     0                         ; Reserved
+            DCD     0                         ; Reserved
+            DCD     0                         ; Reserved
+            DCD     0                         ; Reserved
+            DCD     SVC_Handler               ; SVCall Handler
+            DCD     DebugMon_Handler          ; Debug Monitor Handler
+            DCD     0                         ; Reserved
+            DCD     PendSV_Handler            ; PendSV Handler
+            DCD     SysTick_Handler           ; SysTick Handler
+            
+            ; 外设中断
+            DCD     WWDG_IRQHandler           ; Window Watchdog
+            DCD     EXTI0_IRQHandler          ; EXTI Line0
+            DCD     EXTI1_IRQHandler          ; EXTI Line1
+            ; ... 更多中断向量</code></pre>
+                        </div>
+                    </div>
+                    
+                    <!-- 详细信息部分 -->
+                    <div id="details" class="content-section">
+                        <h2><i class="fas fa-file-alt"></i> 详细信息</h2>
+                        <p>深入理解STM32F103中断系统的架构和工作原理对于开发复杂应用至关重要。</p>
+                        
+                        <h3>1. 中断控制器（NVIC - Nested Vectored Interrupt Controller）</h3>
+                        <p>NVIC是ARM Cortex-M3内核的一部分，负责处理所有外设中断，具有以下特点：</p>
+                        <ul>
+                            <li>支持<strong>嵌套中断</strong>：高优先级中断可打断低优先级中断</li>
+                            <li>支持<strong>256级中断优先级</strong>，STM32F103实现了16个可编程优先级</li>
+                            <li><strong>中断向量表</strong>固定在内存起始地址，每个中断源有固定的向量偏移</li>
+                            <li>支持<strong>尾链技术</strong>，减少中断切换开销</li>
+                            <li>提供<strong>中断屏蔽寄存器</strong>（PRIMASK, FAULTMASK, BASEPRI）</li>
+                        </ul>
+                        
+                        <h3>2. 系统滴答定时器（SysTick）</h3>
+                        <p>SysTick是Cortex-M3内核的24位递减计数器，用于产生周期性系统中断：</p>
+                        <ul>
+                            <li>时钟源可选<strong>HCLK</strong>或<strong>HCLK/8</strong></li>
+                            <li>常用于操作系统任务调度、延时函数、时间测量</li>
+                            <li>中断使能后，每隔设定时间触发<code>SysTick_Handler</code></li>
+                            <li>重载值计算公式：<code>ReloadValue = (DesiredPeriod * ClockFreq) - 1</code></li>
+                        </ul>
+                        
+                        <h3>3. 外部中断/事件控制器（EXTI）</h3>
+                        <p>EXTI用于处理GPIO引脚的外部中断和事件：</p>
+                        <ul>
+                            <li>支持<strong>上升沿、下降沿、双边沿</strong>触发方式</li>
+                            <li>每个GPIO可映射到<strong>EXTI0 ~ EXTI15</strong>，但同一EXTI线同一时间只能连接一个GPIO引脚</li>
+                            <li>EXTI16~EXTI19用于特定外设（PVD, RTC, USB, Ethernet）</li>
+                            <li>支持<strong>软件触发中断</strong>，通过EXTI_SWIER寄存器</li>
+                            <li>中断与事件分离：事件不触发CPU中断，直接驱动硬件操作</li>
+                        </ul>
+                        
+                        <h3>4. 中断与事件的区别</h3>
+                        <table class="config-table" style="margin-top: 15px;">
+                            <thead>
+                                <tr>
+                                    <th>特性</th>
+                                    <th>中断</th>
+                                    <th>事件</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>CPU参与</td>
+                                    <td>是，跳转到ISR</td>
+                                    <td>否，纯硬件操作</td>
+                                </tr>
+                                <tr>
+                                    <td>延迟</td>
+                                    <td>有中断延迟</td>
+                                    <td>几乎无延迟</td>
+                                </tr>
+                                <tr>
+                                    <td>功耗</td>
+                                    <td>较高（需要CPU介入）</td>
+                                    <td>较低（无需CPU）</td>
+                                </tr>
+                                <tr>
+                                    <td>典型应用</td>
+                                    <td>数据处理、状态更新</td>
+                                    <td>DMA传输、定时器启动</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h3>5. 外设中断源</h3>
+                        <p>STM32F103支持丰富的外设中断，主要包括：</p>
+                        <ul>
+                            <li><strong>定时器中断</strong>：更新、捕获/比较、触发、刹车中断</li>
+                            <li><strong>ADC中断</strong>：规则/注入转换完成、模拟看门狗触发</li>
+                            <li><strong>USART中断</strong>：发送完成、接收就绪、帧错误、溢出错误</li>
+                            <li><strong>SPI/I2S中断</strong>：发送/接收完成、错误中断</li>
+                            <li><strong>I2C中断</strong>：发送/接收完成、仲裁丢失、总线错误</li>
+                            <li><strong>USB/CAN中断</strong>：传输完成、错误、唤醒</li>
+                            <li><strong>DMA中断</strong>：传输完成、半传输完成、传输错误</li>
+                            <li><strong>RTC中断</strong>：闹钟、秒、溢出中断</li>
+                            <li><strong>看门狗</strong>：WWDG可配置提前警告中断</li>
+                        </ul>
+                        
+                        <h3>6. 中断优先级机制</h3>
+                        <p>STM32F103使用4位优先级字段，支持抢占优先级和子优先级：</p>
+                        <ul>
+                            <li><strong>抢占优先级</strong>：决定中断是否能打断其他正在执行的中断</li>
+                            <li><strong>子优先级</strong>：当多个中断同时挂起时，决定执行顺序</li>
+                            <li>优先级数值越小，优先级越高</li>
+                            <li>通过<strong>NVIC_IPRx</strong>寄存器配置优先级</li>
+                            <li>优先级分组通过<strong>SCB->AIRCR</strong>寄存器的PRIGROUP字段配置</li>
+                        </ul>
+                        
+                        <h3>7. 中断与低功耗模式</h3>
+                        <p>中断在低功耗模式下扮演重要角色：</p>
+                        <ul>
+                            <li><strong>睡眠模式</strong>：任何中断都可唤醒</li>
+                            <li><strong>停止模式</strong>：EXTI、RTC、IWDG等特定中断可唤醒</li>
+                            <li><strong>待机模式</strong>：WKUP引脚、RTC闹钟、NRST引脚可唤醒</li>
+                            <li>进入低功耗模式前，需配置好唤醒源和中断使能</li>
+                            <li>退出低功耗模式后，程序从ISR或复位后的代码继续执行</li>
+                        </ul>
+                        
+                        <h3>8. 中断服务程序最佳实践</h3>
+                        <div class="code-block">
+                            <pre><code>// 中断服务程序最佳实践示例
+void USART1_IRQHandler(void) {
+    // 1. 调用HAL库中断处理函数
+    HAL_UART_IRQHandler(&huart1);
+    
+    // 注意：HAL库会自动清除中断标志
+    // 如果使用寄存器直接操作，必须手动清除标志
+}
+
+// 回调函数实现
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+    // 1. 尽量减少在ISR中的处理时间
+    // 2. 避免使用阻塞函数（如HAL_Delay）
+    // 3. 使用标志位或队列将数据处理移至主循环
+    // 4. 注意重入问题，特别是使用全局变量时
+    
+    if(huart->Instance == USART1) {
+        // 设置标志，在主循环中处理数据
+        uart_data_ready = 1;
+    }
+}
+
+// 错误处理
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {
+    // 处理通信错误
+    if(huart->Instance == USART1) {
+        // 重新初始化或采取恢复措施
+        HAL_UART_DeInit(&huart1);
+        HAL_UART_Init(&huart1);
+    }
+}</code></pre>
+                        </div>
+                        
+                        <h3>9. 常见问题与调试技巧</h3>
+                        <ul>
+                            <li><strong>中断不触发</strong>：检查外设时钟、NVIC使能、外设中断使能、优先级配置</li>
+                            <li><strong>中断重复触发</strong>：检查是否在ISR中清除了中断标志</li>
+                            <li><strong>中断响应延迟</strong>：检查是否在临界区禁用中断时间过长</li>
+                            <li><strong>中断优先级反转</strong>：合理配置优先级，避免高优先级任务被低优先级阻塞</li>
+                            <li><strong>使用调试器</strong>：检查NVIC->ISER、NVIC->IPR等寄存器状态</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- 模块特性卡片展示 -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-star"></i> 核心特性</h2>
+                        <div class="module-features">
+                            <div class="feature-card">
+                                <h4><i class="fas fa-layer-group"></i> 嵌套中断</h4>
+                                <p>支持中断嵌套，高优先级中断可打断低优先级中断，确保关键任务及时响应。</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4><i class="fas fa-bolt"></i> 低延迟响应</h4>
+                                <p>Cortex-M3内核提供确定性中断响应，最快12周期进入ISR，6周期退出。</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4><i class="fas fa-cogs"></i> 灵活优先级</h4>
+                                <p>支持16级可编程优先级，可配置抢占优先级和子优先级，满足复杂系统需求。</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4><i class="fas fa-bed"></i> 低功耗唤醒</h4>
+                                <p>多种中断源可将MCU从睡眠、停止、待机模式唤醒，实现功耗与响应速度的平衡。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="demo.html" class="back-button">
+                        <i class="fas fa-arrow-left"></i> 返回主页面
+                    </a>
+                </div>
+                
+                <!-- 右侧侧边栏 - 模块详情 -->
+                <div class="sidebar-right">
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-microchip"></i> 技术参数</h3>
+                        <table class="params-table">
+                            <thead>
+                                <tr>
+                                    <th>参数</th>
+                                    <th>值/规格</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>中断向量数量</td>
+                                    <td>68个（包括系统异常）</td>
+                                </tr>
+                                <tr>
+                                    <td>可屏蔽中断</td>
+                                    <td>60个</td>
+                                </tr>
+                                <tr>
+                                    <td>优先级位数</td>
+                                    <td>4位（16级优先级）</td>
+                                </tr>
+                                <tr>
+                                    <td>EXTI中断线</td>
+                                    <td>20条（0-15, 16-19）</td>
+                                </tr>
+                                <tr>
+                                    <td>SysTick时钟源</td>
+                                    <td>HCLK 或 HCLK/8</td>
+                                </tr>
+                                <tr>
+                                    <td>中断延迟</td>
+                                    <td>12周期（最快）</td>
+                                </tr>
+                                <tr>
+                                    <td>尾链优化</td>
+                                    <td>支持</td>
+                                </tr>
+                                <tr>
+                                    <td>晚到中断</td>
+                                    <td>支持</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-list-alt"></i> 关键寄存器</h3>
+                        <ul class="register-list">
+                            <li>
+                                <span class="register-name">NVIC_ISERx - 中断使能</span>
+                                <span class="register-desc">使能/禁用中断，每个bit对应一个中断</span>
+                            </li>
+                            <li>
+                                <span class="register-name">NVIC_ICERx - 中断清除</span>
+                                <span class="register-desc">清除中断使能位</span>
+                            </li>
+                            <li>
+                                <span class="register-name">NVIC_IPRx - 中断优先级</span>
+                                <span class="register-desc">设置中断优先级（8位寄存器）</span>
+                            </li>
+                            <li>
+                                <span class="register-name">EXTI_IMR - 中断屏蔽</span>
+                                <span class="register-desc">控制EXTI线的中断使能</span>
+                            </li>
+                            <li>
+                                <span class="register-name">EXTI_EMR - 事件屏蔽</span>
+                                <span class="register-desc">控制EXTI线的事件使能</span>
+                            </li>
+                            <li>
+                                <span class="register-name">EXTI_PR - 挂起寄存器</span>
+                                <span class="register-desc">中断挂起标志，写1清除</span>
+                            </li>
+                            <li>
+                                <span class="register-name">SCB->AIRCR - 应用中断控制</span>
+                                <span class="register-desc">设置优先级分组、系统复位</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-plug"></i> 主要中断源</h3>
+                        <div class="pin-functions">
+                            <span class="pin-tag">EXTI0-15</span>
+                            <span class="pin-tag">SysTick</span>
+                            <span class="pin-tag">TIM1-8</span>
+                            <span class="pin-tag">USART1-3</span>
+                            <span class="pin-tag">ADC1-2</span>
+                            <span class="pin-tag">SPI1-2</span>
+                            <span class="pin-tag">I2C1-2</span>
+                            <span class="pin-tag">USB</span>
+                            <span class="pin-tag">CAN</span>
+                            <span class="pin-tag">DMA1-2</span>
+                            <span class="pin-tag">RTC</span>
+                            <span class="pin-tag">WWDG</span>
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-exclamation-triangle"></i> 注意事项</h3>
+                        <p style="color: #bbb; font-size: 0.95rem; line-height: 1.6; margin-top: 15px;">
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            中断服务程序中必须清除中断标志位<br><br>
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            避免在ISR中使用耗时操作或阻塞函数<br><br>
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            访问共享资源时注意临界区保护<br><br>
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            合理配置中断优先级，防止优先级反转
+                        </p>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-history"></i> 典型应用</h3>
+                        <p style="color: #bbb; font-size: 0.95rem; line-height: 1.6; margin-top: 15px;">
+                            • 实时操作系统任务调度<br>
+                            • 外部按键/传感器检测<br>
+                            • 通信协议处理(USART/SPI/I2C)<br>
+                            • 高速数据采集(ADC/DMA)<br>
+                            • 电机控制与编码器反馈<br>
+                            • 低功耗系统唤醒管理
+                        </p>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-code-branch"></i> 中断优先级分组</h3>
+                        <table class="params-table" style="margin-top: 15px; font-size: 0.9rem;">
+                            <thead>
+                                <tr>
+                                    <th>分组</th>
+                                    <th>抢占优先级位</th>
+                                    <th>子优先级位</th>
+                                    <th>优先级数量</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Group 0</td>
+                                    <td>0位</td>
+                                    <td>4位</td>
+                                    <td>0抢占, 16子</td>
+                                </tr>
+                                <tr>
+                                    <td>Group 1</td>
+                                    <td>1位</td>
+                                    <td>3位</td>
+                                    <td>2抢占, 8子</td>
+                                </tr>
+                                <tr>
+                                    <td>Group 2</td>
+                                    <td>2位</td>
+                                    <td>2位</td>
+                                    <td>4抢占, 4子</td>
+                                </tr>
+                                <tr>
+                                    <td>Group 3</td>
+                                    <td>3位</td>
+                                    <td>1位</td>
+                                    <td>8抢占, 2子</td>
+                                </tr>
+                                <tr>
+                                    <td>Group 4</td>
+                                    <td>4位</td>
+                                    <td>0位</td>
+                                    <td>16抢占, 0子</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>STM32F103 中断系统详情页面 | 包含CubeMX配置、HAL库使用和技术参数</p>
+            <p style="margin-top: 10px; font-size: 0.8rem;">提示：左上角按钮可快速跳转到CubeMX使用、HAL库使用和详细信息章节</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 页面加载动画
+            document.body.style.opacity = 0;
+            document.body.style.transition = 'opacity 0.8s ease';
+            
+            setTimeout(() => {
+                document.body.style.opacity = 1;
+            }, 100);
+            
+            // 为引脚标签添加悬停效果
+            const pinTags = document.querySelectorAll('.pin-tag');
+            pinTags.forEach(tag => {
+                tag.addEventListener('mouseenter', function() {
+                    this.style.boxShadow = '0 0 10px rgba(100, 100, 100, 0.5)';
+                });
+                
+                tag.addEventListener('mouseleave', function() {
+                    this.style.boxShadow = 'none';
+                });
+            });
+            
+            // 为表格行添加悬停效果
+            const tableRows = document.querySelectorAll('.params-table tr, .config-table tr');
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#2a2a2a';
+                });
+                
+                row.addEventListener('mouseleave', function() {
+                    if (this.rowIndex % 2 === 0) {
+                        this.style.backgroundColor = '#1a1a1a';
+                    } else {
+                        this.style.backgroundColor = '';
+                    }
+                });
+            });
+            
+            // 为返回按钮添加点击效果
+            const backButton = document.querySelector('.back-button');
+            if (backButton) {
+                backButton.addEventListener('click', function(e) {
+                    // 添加点击反馈
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                });
+            }
+            
+            // 为导航按钮添加点击效果
+            const navButtons = document.querySelectorAll('.nav-button');
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // 添加点击反馈
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                });
+            });
+        });
+        
+        // 滚动到指定部分的函数
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                // 平滑滚动到目标位置
+                element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                // 添加视觉反馈
+                element.style.backgroundColor = '#2a2a2a';
+                setTimeout(() => {
+                    element.style.backgroundColor = '';
+                }, 1500);
+            }
+        }
+    </script>
+</body>
+</html>

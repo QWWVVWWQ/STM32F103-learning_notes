@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STM32 GPIO模块详情 - STM32F103</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #0a0a0a;
+            color: #f0f0f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 头部样式 */
+        header {
+            padding: 30px 0 20px;
+            border-bottom: 1px solid #333;
+            margin-bottom: 40px;
+        }
+        
+        /* 标题区域 */
+        h1 {
+            color: #fff;
+            font-size: 2.8rem;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+            text-align: right;
+        }
+        
+        /* 副标题与按钮容器 */
+        .subtitle-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .module-subtitle {
+            color: #aaa;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            text-align: right;
+            flex-shrink: 0;
+        }
+        
+        /* 面包屑导航 */
+        .breadcrumb {
+            text-align: right;
+            margin-bottom: 20px;
+            color: #888;
+            font-size: 0.95rem;
+        }
+        
+        .breadcrumb a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .breadcrumb a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+        
+        /* 新增：按钮容器 - 左侧 */
+        .header-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        /* 导航按钮样式 */
+        .nav-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #222;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border: 1px solid #444;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .nav-button:hover {
+            background-color: #333;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-button.hal {
+            border-left: 4px solid #4ec9b0;
+        }
+        
+        .nav-button.details {
+            border-left: 4px solid #569cd6;
+        }
+        
+        .nav-button.cubemx {
+            border-left: 4px solid #ff9800;
+        }
+        
+        /* 主要内容布局 */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 40px;
+            margin-bottom: 60px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 左侧内容区域 */
+        .content-left {
+            background-color: #111;
+            border-radius: 15px;
+            padding: 40px;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 右侧侧边栏 - 模块详情 */
+        .sidebar-right {
+            background-color: #111;
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateX(30px);
+            animation: slideInRight 1s ease 0.3s forwards;
+        }
+        
+        @keyframes slideInRight {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* 内容区域样式 */
+        .content-section {
+            margin-bottom: 40px;
+        }
+        
+        .content-section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #fff;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .content-section h3 {
+            font-size: 1.4rem;
+            margin: 25px 0 15px;
+            color: #ddd;
+        }
+        
+        .content-section p {
+            color: #bbb;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+        
+        .content-section ul, .content-section ol {
+            padding-left: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .content-section li {
+            color: #bbb;
+            line-height: 1.7;
+            margin-bottom: 8px;
+        }
+        
+        /* 代码块样式 */
+        .code-block {
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #666;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        
+        .code-block pre {
+            color: #ddd;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        
+        .code-block code {
+            color: #4ec9b0;
+        }
+        
+        /* 配置选项表格 */
+        .config-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .config-table th {
+            background-color: #222;
+            color: #fff;
+            text-align: left;
+            padding: 12px 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #333;
+        }
+        
+        .config-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #333;
+            color: #bbb;
+        }
+        
+        .config-table tr:nth-child(even) {
+            background-color: #1a1a1a;
+        }
+        
+        .config-table tr:hover {
+            background-color: #222;
+        }
+        
+        /* 侧边栏样式 - 模块详情 */
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+        
+        .sidebar-section h3 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #fff;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* 技术参数表格 */
+        .params-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .params-table th {
+            background-color: #222;
+            color: #fff;
+            text-align: left;
+            padding: 12px 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #333;
+        }
+        
+        .params-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #333;
+            color: #bbb;
+        }
+        
+        .params-table tr:nth-child(even) {
+            background-color: #1a1a1a;
+        }
+        
+        .params-table tr:hover {
+            background-color: #222;
+        }
+        
+        /* 寄存器列表 */
+        .register-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .register-list li {
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background-color: #1a1a1a;
+            border-radius: 6px;
+            border-left: 3px solid #666;
+            transition: all 0.3s ease;
+        }
+        
+        .register-list li:hover {
+            background-color: #222;
+            border-left-color: #aaa;
+            transform: translateX(5px);
+        }
+        
+        .register-name {
+            font-weight: bold;
+            color: #fff;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .register-desc {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        /* 引脚功能标签 */
+        .pin-functions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .pin-tag {
+            background-color: #1a1a1a;
+            color: #ccc;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+        }
+        
+        .pin-tag:hover {
+            background-color: #222;
+            border-color: #666;
+            transform: translateY(-3px);
+        }
+        
+        /* 模块特性卡片 */
+        .module-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .feature-card {
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            padding: 20px;
+            border-top: 4px solid #666;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: #aaa;
+        }
+        
+        .feature-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feature-card p {
+            color: #bbb;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        /* 返回按钮 */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #222;
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid #444;
+        }
+        
+        .back-button:hover {
+            background-color: #333;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 页脚 */
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 60px;
+            border-top: 1px solid #333;
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr 300px;
+            }
+            
+            .content-left {
+                padding: 30px;
+            }
+            
+            .sidebar-right {
+                padding: 25px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .sidebar-right {
+                order: -1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .module-subtitle {
+                font-size: 1rem;
+            }
+            
+            .content-left, .sidebar-right {
+                padding: 25px;
+            }
+            
+            .module-features {
+                grid-template-columns: 1fr;
+            }
+            
+            .params-table, .config-table {
+                font-size: 0.9rem;
+            }
+            
+            .params-table th, .params-table td,
+            .config-table th, .config-table td {
+                padding: 10px 12px;
+            }
+            
+            .subtitle-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .module-subtitle {
+                text-align: left;
+                width: 100%;
+            }
+            
+            .header-buttons {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .breadcrumb {
+                text-align: left;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .content-left, .sidebar-right {
+                padding: 20px;
+            }
+            
+            .content-section h2 {
+                font-size: 1.6rem;
+            }
+            
+            .content-section h3 {
+                font-size: 1.3rem;
+            }
+            
+            .sidebar-section h3 {
+                font-size: 1.3rem;
+            }
+            
+            .header-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .nav-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="breadcrumb">
+                <a href="demo.html">主页</a> &gt; <span>GPIO模块详情</span>
+            </div>
+            
+            <h1>GPIO（通用输入输出）</h1>
+            
+            <!-- 副标题与按钮容器 -->
+            <div class="subtitle-container">
+                <!-- 新增的按钮容器 - 左侧 -->
+                <div class="header-buttons">
+                    <button class="nav-button cubemx" onclick="scrollToSection('cubemx-quickstart')">
+                        <i class="fas fa-tools"></i> CubeMX使用
+                    </button>
+                    <button class="nav-button hal" onclick="scrollToSection('hal-library')">
+                        <i class="fas fa-code"></i> HAL库使用
+                    </button>
+                    <button class="nav-button details" onclick="scrollToSection('details')">
+                        <i class="fas fa-info-circle"></i> 详细信息
+                    </button>
+                </div>
+                
+                <!-- 副标题 - 右侧 -->
+                <p class="module-subtitle">STM32F103 GPIO模块提供灵活的引脚配置，支持输入、输出、复用功能和模拟模式，是连接外部设备的核心接口</p>
+            </div>
+        </header>
+        
+        <main>
+            <div class="main-content">
+                <!-- 左侧内容区域 -->
+                <div class="content-left">
+                    <div class="content-section">
+                        <h2><i class="fas fa-info-circle"></i> 概述</h2>
+                        <p>通用输入输出（GPIO）是STM32微控制器最基本也是最重要的外设之一。每个GPIO引脚都可以独立配置为输入、输出、复用功能或模拟模式，为外部设备提供灵活的接口连接方案。</p>
+                        
+                        <h3>主要功能与特性</h3>
+                        <p>GPIO模块提供丰富的功能，适用于各种嵌入式应用场景：</p>
+                        
+                        <ul>
+                            <li><strong>输入功能</strong>：读取外部数字电平，支持浮空输入、上拉输入、下拉输入模式</li>
+                            <li><strong>输出功能</strong>：输出高/低电平，支持推挽输出和开漏输出模式</li>
+                            <li><strong>复用功能（AF）</strong>：将引脚用于外设功能（如USART、SPI、I2C、TIM等）</li>
+                            <li><strong>模拟输入</strong>：用于ADC或DAC等模拟信号输入</li>
+                            <li><strong>外部中断/事件</strong>：支持引脚作为外部中断触发源，可配置边沿触发</li>
+                            <li><strong>位操作</strong>：支持单独对引脚进行置位、清零操作，提高效率</li>
+                            <li><strong>锁定机制</strong>：可锁定引脚配置，防止软件误修改</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- 新增：CubeMX快速使用部分 -->
+                    <div id="cubemx-quickstart" class="content-section">
+                        <h2><i class="fas fa-tools"></i> CubeMX使用</h2>
+                        <p>STM32CubeMX是ST官方提供的图形化配置工具，可以快速配置GPIO引脚，生成初始化代码。</p>
+                        
+                        <h3>引脚分配与配置</h3>
+                        <p>在CubeMX中配置GPIO的基本步骤：</p>
+                        <ul>
+                            <li><strong>分配引脚</strong>：在Pinout & Configuration页面，可将引脚设为GPIO_Output、GPIO_Input和GPIO_EXTI</li>
+                            <li><strong>配置GPIO</strong>：在Pinout & Configuration → GPIO，点击对应的PIN，可以在下方的Configuration中配置详细参数</li>
+                        </ul>
+                        
+                        <h3>CubeMX GPIO配置选项</h3>
+                        <p>在CubeMX中配置GPIO时，常见的选项：</p>
+                        
+                        <table class="config-table">
+                            <thead>
+                                <tr>
+                                    <th>配置项</th>
+                                    <th>说明</th>
+                                    <th>常用选项</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>GPIO output level</td>
+                                    <td>初始输出电平</td>
+                                    <td>Low (低电平)<br>High (高电平)</td>
+                                </tr>
+                                <tr>
+                                    <td>GPIO mode</td>
+                                    <td>GPIO工作模式</td>
+                                    <td>Output Push Pull (推挽输出)<br>Output Open Drain (开漏输出)<br>Input (输入)<br>External Interrupt (外部中断)</td>
+                                </tr>
+                                <tr>
+                                    <td>Pull-up/Pull-down</td>
+                                    <td>上拉/下拉电阻</td>
+                                    <td>No pull-up and no pull-down (无上下拉)<br>Pull-up (上拉)<br>Pull-down (下拉)</td>
+                                </tr>
+                                <tr>
+                                    <td>Maximum output speed</td>
+                                    <td>输出速度</td>
+                                    <td>Low (2 MHz)<br>Medium (10 MHz)<br>High (50 MHz)<br>Very High (保留)</td>
+                                </tr>
+                                <tr>
+                                    <td>User Label</td>
+                                    <td>用户标签</td>
+                                    <td>可自定义引脚名称，如LED1、KEY1等</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h3>GPIO输出速度详解</h3>
+                        <p>输出速度是指GPIO引脚内部驱动电路从"0"切换到"1"（或反之）的速度，实质上是控制输出级晶体管的切换速率。</p>
+                        
+                        <ul>
+                            <li><strong>速度越高</strong>：电压跳变越陡峭，信号边沿越"干脆"，从低到高（或高到低）变化得越快</li>
+                            <li><strong>速度越低</strong>：电压跳变越平缓，信号边沿越"圆滑"，变化得越慢</li>
+                        </ul>
+                        
+                        <div class="code-block">
+                            <pre><code>// GPIO输出速度选择原则：
+// 1. 低速应用：LED控制、按键检测（2 MHz足够）
+// 2. 中速应用：SPI通信（10-25 MHz）
+// 3. 高速应用：高速PWM、精确时序控制（50 MHz）
+//
+// 重要提示：速度越高，EMI（电磁干扰）越严重，功耗也越高
+// 在满足需求的前提下，尽量选择较低的速度</code></pre>
+                        </div>
+                        
+                        <h3>CubeMX生成的GPIO初始化代码</h3>
+                        <p>CubeMX会自动生成GPIO初始化代码，以下是典型示例：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// CubeMX生成的GPIO初始化代码（main.c中的MX_GPIO_Init函数）
+static void MX_GPIO_Init(void) {
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    
+    // 使能GPIO端口时钟
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    
+    // 配置PA5为推挽输出，用于控制LED
+    GPIO_InitStruct.Pin = GPIO_PIN_5;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    
+    // 配置PB0为上拉输入，用于按键检测
+    GPIO_InitStruct.Pin = GPIO_PIN_0;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    
+    // 配置PB1为外部中断，下降沿触发
+    GPIO_InitStruct.Pin = GPIO_PIN_1;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    
+    // 配置外部中断优先级
+    HAL_NVIC_SetPriority(EXTI1_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(EXTI1_IRQn);
+}</code></pre>
+                        </div>
+                        
+                        <h3>使用CubeMX配置的优势</h3>
+                        <ul>
+                            <li><strong>可视化配置</strong>：图形界面直观，避免寄存器配置错误</li>
+                            <li><strong>代码自动生成</strong>：自动生成初始化代码和HAL库函数调用</li>
+                            <li><strong>引脚冲突检测</strong>：自动检测引脚功能冲突并提示</li>
+                            <li><strong>时钟树配置</strong>：图形化配置系统时钟和外设时钟</li>
+                            <li><strong>项目管理</strong>：支持生成多种IDE工程文件（Keil、IAR、Eclipse等）</li>
+                        </ul>
+                    </div>
+                        
+                    <!-- HAL库使用部分 -->
+                    <div id="hal-library" class="content-section">
+                        <h2><i class="fas fa-code"></i> HAL库使用</h2>
+                        <p>STM32 HAL库提供了简洁易用的GPIO操作接口，以下是如何使用HAL库配置和操作GPIO的详细说明。</p>
+                        
+                        <h3>GPIO HAL主要函数列表</h3>
+                        <div class="code-block">
+                            <pre><code>// GPIO HAL主要函数
+HAL_GPIO_Init()          // 初始化一个或多个GPIO引脚
+HAL_GPIO_DeInit()        // 将GPIO引脚恢复为默认状态
+HAL_GPIO_ReadPin()       // 读取指定GPIO引脚的电平状态
+HAL_GPIO_WritePin()      // 向指定GPIO引脚写入电平（高/低）
+HAL_GPIO_TogglePin()     // 翻转指定GPIO引脚的电平状态
+HAL_GPIO_EXTI_IRQHandler() // 处理外部中断（EXTI）中断请求
+HAL_GPIO_EXTI_Callback()   // 外部中断回调函数</code></pre>
+                        </div>
+                        
+                        <h3>常用HAL函数使用示例</h3>
+                        <p>基本GPIO操作函数：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// 常用HAL函数使用示例
+#include "stm32f1xx_hal.h"
+
+// 写入GPIO引脚电平
+void LED_Control(void) {
+    // 点亮LED（假设LED低电平点亮）
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+    
+    // 关闭LED
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+    
+    // 翻转LED状态
+    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+}
+
+// 读取GPIO引脚电平
+uint8_t Read_Key(void) {
+    GPIO_PinState state;
+    
+    // 读取按键状态（假设按键按下为低电平）
+    state = HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0);
+    
+    if(state == GPIO_PIN_RESET) {
+        return 1; // 按键按下
+    } else {
+        return 0; // 按键释放
+    }
+}
+
+// 电平常量说明：
+// GPIO_PIN_SET    - 高电平（1）
+// GPIO_PIN_RESET  - 低电平（0）</code></pre>
+                        </div>
+                        
+                        <h3>GPIO配置结构体</h3>
+                        <p>GPIO配置通过<code>GPIO_InitTypeDef</code>结构体完成：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// GPIO_InitTypeDef 结构体定义
+typedef struct {
+    uint32_t Pin;       // 引脚号，如 GPIO_PIN_0
+    uint32_t Mode;      // 模式（输入、输出、复用、模拟、外部中断/事件）
+    uint32_t Pull;      // 上拉/下拉设置
+    uint32_t Speed;     // 输出速度
+} GPIO_InitTypeDef;
+
+// 模式（Mode）可选值：
+// GPIO_MODE_INPUT              // 输入浮空
+// GPIO_MODE_OUTPUT_PP          // 推挽输出
+// GPIO_MODE_OUTPUT_OD          // 开漏输出
+// GPIO_MODE_AF_PP              // 复用推挽
+// GPIO_MODE_AF_OD              // 复用开漏
+// GPIO_MODE_ANALOG             // 模拟模式
+// GPIO_MODE_IT_RISING          // 上升沿中断
+// GPIO_MODE_IT_FALLING         // 下降沿中断
+// GPIO_MODE_IT_RISING_FALLING  // 双边沿中断</code></pre>
+                        </div>
+                        
+                        <h3>HAL库GPIO初始化示例</h3>
+                        <p>使用HAL库初始化GPIO引脚的完整示例：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// HAL库GPIO初始化示例
+#include "stm32f1xx_hal.h"
+
+// 定义GPIO初始化结构体
+GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+void GPIO_Init_Example(void) {
+    // 1. 使能GPIOA时钟
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    
+    // 2. 配置PA5为推挽输出模式，高速，无上下拉
+    GPIO_InitStruct.Pin = GPIO_PIN_5;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    
+    // 3. 设置PA5输出高电平
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+    
+    // 4. 读取PA5引脚电平
+    GPIO_PinState pinState = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_5);
+    
+    // 5. 翻转PA5引脚电平
+    HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+}</code></pre>
+                        </div>
+                        
+                        <h3>GPIO中断配置示例</h3>
+                        <p>配置GPIO外部中断的完整示例：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// GPIO外部中断配置示例
+#include "stm32f1xx_hal.h"
+
+// 初始化外部中断
+void EXTI_Init_Example(void) {
+    // 1. 使能GPIOA时钟
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    
+    // 2. 配置PA0为上升沿触发中断，上拉输入
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Pin = GPIO_PIN_0;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    
+    // 3. 配置外部中断线0
+    HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+}
+
+// 在stm32f1xx_it.c中调用中断处理函数
+void EXTI0_IRQHandler(void) {
+    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
+}
+
+// 实现中断回调函数
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+    if(GPIO_Pin == GPIO_PIN_0) {
+        // 处理PA0中断
+        HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0); // 翻转PB0
+    }
+}</code></pre>
+                        </div>
+                        
+                        <h3>GPIO工作模式详解</h3>
+                        <p>STM32 GPIO支持多种工作模式，每种模式都有特定的应用场景：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// GPIO工作模式配置参考
+// 输入模式：
+// - 浮空输入：GPIO_MODE_INPUT（默认无上下拉）
+// - 上拉输入：GPIO_MODE_INPUT + GPIO_PULLUP
+// - 下拉输入：GPIO_MODE_INPUT + GPIO_PULLDOWN
+
+// 输出模式：
+// - 推挽输出：GPIO_MODE_OUTPUT_PP（驱动能力强）
+// - 开漏输出：GPIO_MODE_OUTPUT_OD（适用于总线）
+
+// 复用模式：
+// - 复用推挽：GPIO_MODE_AF_PP（用于SPI、USART等）
+// - 复用开漏：GPIO_MODE_AF_OD（用于I2C等）
+
+// 模拟模式：
+// - 模拟输入：GPIO_MODE_ANALOG（用于ADC/DAC）</code></pre>
+                        </div>
+                        
+                        <h3>常用编程示例</h3>
+                        <p>以下是一些常用的GPIO操作示例：</p>
+                        <div class="code-block">
+                            <pre><code>// 直接寄存器操作GPIOA Pin5为推挽输出
+RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;   // 使能GPIOA时钟
+GPIOA->CRL &= ~(0xF << 20);           // 清除PA5配置
+GPIOA->CRL |= (0x3 << 20);            // 输出模式，50MHz
+GPIOA->BSRR = GPIO_BSRR_BS5;          // 输出高电平
+
+// 使用位操作寄存器BSRR快速操作GPIO
+GPIOA->BSRR = (1 << 5);               // 置位PA5（输出高电平）
+GPIOA->BSRR = (1 << (5 + 16));        // 清零PA5（输出低电平）
+
+// 使用BRR寄存器清零引脚
+GPIOA->BRR = (1 << 5);                // 清零PA5</code></pre>
+                        </div>
+                    </div>
+                    
+                    <div class="content-section">
+                        <h2><i class="fas fa-cogs"></i> 配置与使用</h2>
+                        <p>GPIO的正确配置是确保系统正常工作的基础。以下是GPIO配置的详细步骤和最佳实践。</p>
+                        
+                        <h3>GPIO配置步骤</h3>
+                        <ol>
+                            <li><strong>时钟使能</strong>：通过RCC_APB2ENR寄存器使能对应GPIO端口的时钟</li>
+                            <li><strong>模式选择</strong>：根据应用需求选择输入、输出、复用或模拟模式</li>
+                            <li><strong>上下拉配置</strong>：根据电路设计选择上拉、下拉或无上下拉</li>
+                            <li><strong>输出速度设置</strong>：根据信号频率需求选择2MHz、10MHz或50MHz</li>
+                            <li><strong>初始化完成</strong>：调用HAL_GPIO_Init()函数应用配置</li>
+                        </ol>
+                        
+                        <h3>复用功能与重映射（AFIO）</h3>
+                        <p>STM32的GPIO支持引脚功能重映射，可以通过AFIO_MAPR寄存器配置：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// 复用功能重映射配置示例
+// 使能AFIO时钟
+__HAL_RCC_AFIO_CLK_ENABLE();
+
+// 重映射USART1引脚到PB6/PB7
+GPIO_PinRemapConfig(GPIO_Remap_USART1, ENABLE);
+
+// 重映射定时器通道
+GPIO_PinRemapConfig(GPIO_Remap_TIM2, ENABLE);
+
+// 禁用JTAG，释放PA15、PB3、PB4引脚
+GPIO_PinRemapConfig(GPIO_Remap_SWJ_NoJTRST, ENABLE);</code></pre>
+                        </div>
+                        
+                        <h3>外部中断配置步骤</h3>
+                        <p>配置GPIO外部中断的完整流程：</p>
+                        <div class="code-block">
+                            <pre><code>// 外部中断配置完整流程
+void Config_EXTI_Interrupt(void) {
+    // 1. 配置GPIO为输入模式
+    GPIO_InitTypeDef gpio_init = {0};
+    gpio_init.Pin = GPIO_PIN_0;
+    gpio_init.Mode = GPIO_MODE_IT_FALLING;  // 下降沿触发
+    gpio_init.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(GPIOA, &gpio_init);
+    
+    // 2. 配置外部中断线映射
+    __HAL_AFIO_REMAP_EXTI0_ENABLE();  // 映射EXTI0到PA0
+    
+    // 3. 配置EXTI触发方式
+    HAL_NVIC_SetPriority(EXTI0_IRQn, 1, 0);
+    HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+    
+    // 4. 在stm32f1xx_it.c中实现中断处理
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <!-- 详细信息部分 -->
+                    <div id="details" class="content-section">
+                        <h2><i class="fas fa-file-alt"></i> 详细信息</h2>
+                        <p>深入了解GPIO的内部架构、性能特性和高级功能。</p>
+                        
+                        <h3>GPIO架构设计</h3>
+                        <p>STM32 GPIO采用高度灵活的架构设计：</p>
+                        <ul>
+                            <li><strong>端口配置寄存器</strong>：GPIOx_CRL（低8位引脚）和GPIOx_CRH（高8位引脚）控制引脚模式与速度</li>
+                            <li><strong>数据寄存器</strong>：GPIOx_IDR用于读取输入电平，GPIOx_ODR用于设置输出电平</li>
+                            <li><strong>置位/清零寄存器</strong>：GPIOx_BSRR通过原子操作置位或清零引脚，避免读-修改-写问题</li>
+                            <li><strong>配置锁定寄存器</strong>：GPIOx_LCKR可锁定当前引脚配置，防止意外修改</li>
+                            <li><strong>复用功能控制器</strong>：AFIO模块管理引脚功能重映射和外部中断配置</li>
+                        </ul>
+                        
+                        <h3>性能分析与优化</h3>
+                        <p>GPIO性能关键指标和优化建议：</p>
+                        <ul>
+                            <li><strong>最大翻转频率</strong>：高速模式可达50MHz（推挽输出）</li>
+                            <li><strong>驱动能力</strong>：每个引脚最大25mA（推挽输出）</li>
+                            <li><strong>输入电平容限</strong>：兼容3.3V和5V系统（开漏模式配合上拉电阻）</li>
+                            <li><strong>功耗优化</strong>：未使用的GPIO配置为模拟输入可降低功耗</li>
+                            <li><strong>抗干扰能力</strong>：合理配置上下拉电阻提高抗干扰性</li>
+                        </ul>
+                        
+                        <h3>不同产品系列的GPIO差异</h3>
+                        <div class="code-block">
+                            <pre><code>// 不同STM32系列的GPIO差异
+#if defined(STM32F103xE) || defined(STM32F103xG)
+    // 大容量产品：最多112个GPIO，支持FSMC
+    #define GPIO_COUNT_MAX 112
+    #define HAS_FSMC_PINS
+#elif defined(STM32F103xC)
+    // 中容量产品：最多80个GPIO
+    #define GPIO_COUNT_MAX 80
+#elif defined(STM32F103x8) || defined(STM32F103xB)
+    // 小容量产品：最多51个GPIO
+    #define GPIO_COUNT_MAX 51
+#endif</code></pre>
+                        </div>
+                        
+                        <h3>GPIO在低功耗模式下的行为</h3>
+                        <p>了解GPIO在不同低功耗模式下的状态：</p>
+                        <ul>
+                            <li><strong>睡眠模式</strong>：GPIO状态保持，可被外部中断唤醒</li>
+                            <li><strong>停机模式</strong>：GPIO状态保持，部分引脚（WKUP）可唤醒系统</li>
+                            <li><strong>待机模式</strong>：大部分GPIO为高阻态，仅复位和唤醒引脚有效</li>
+                            <li><strong>功耗优化建议</strong>：进入低功耗前，将未使用的GPIO配置为模拟输入</li>
+                        </ul>
+                        
+                        <h3>故障排除与调试技巧</h3>
+                        <p>常见GPIO问题及解决方法：</p>
+                        <ul>
+                            <li><strong>引脚无输出</strong>：检查时钟是否使能，模式是否正确，是否被其他功能占用</li>
+                            <li><strong>电平不正确</strong>：检查上下拉配置，测量外部电路，确认负载电流</li>
+                            <li><strong>中断不触发</strong>：确认EXTI配置，检查NVIC优先级，验证边沿触发方式</li>
+                            <li><strong>复用功能失效</strong>：确保对应外设时钟已使能，检查重映射配置</li>
+                            <li><strong>锁定无法修改</strong>：系统复位或解锁LCKR寄存器后才能修改配置</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- 模块特性卡片展示 -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-star"></i> GPIO核心特性</h2>
+                        <div class="module-features">
+                            <div class="feature-card">
+                                <h4><i class="fas fa-sliders-h"></i> 灵活可配置</h4>
+                                <p>每个引脚独立配置为输入、输出、复用或模拟模式，支持推挽/开漏输出，上拉/下拉输入，满足各种应用需求。</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4><i class="fas fa-bolt"></i> 高速响应</h4>
+                                <p>支持最高50MHz的输出速度，快速响应外部事件，满足实时性要求高的应用场景。</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4><i class="fas fa-exchange-alt"></i> 复用功能</h4>
+                                <p>支持引脚功能重映射，可将外设功能灵活分配到不同引脚，简化PCB布局设计。</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4><i class="fas fa-bell"></i> 中断能力</h4>
+                                <p>每个GPIO引脚都可配置为外部中断源，支持上升沿、下降沿和双边沿触发，实现高效的事件驱动编程。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="demo.html" class="back-button">
+                        <i class="fas fa-arrow-left"></i> 返回主页面
+                    </a>
+                </div>
+                
+                <!-- 右侧侧边栏 - 模块详情 -->
+                <div class="sidebar-right">
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-microchip"></i> GPIO技术参数</h3>
+                        <table class="params-table">
+                            <thead>
+                                <tr>
+                                    <th>参数</th>
+                                    <th>值/规格</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>工作电压</td>
+                                    <td>2.0V - 3.6V</td>
+                                </tr>
+                                <tr>
+                                    <td>输入高电平</td>
+                                    <td>≥ 0.7 × VDD</td>
+                                </tr>
+                                <tr>
+                                    <td>输入低电平</td>
+                                    <td>≤ 0.3 × VDD</td>
+                                </tr>
+                                <tr>
+                                    <td>输出驱动能力</td>
+                                    <td>±25mA（单个引脚）</td>
+                                </tr>
+                                <tr>
+                                    <td>最大翻转频率</td>
+                                    <td>50MHz（推挽输出）</td>
+                                </tr>
+                                <tr>
+                                    <td>GPIO数量</td>
+                                    <td>最多112个（大容量）</td>
+                                </tr>
+                                <tr>
+                                    <td>待机模式功耗</td>
+                                    <td>&lt; 1 μA（配置为模拟输入）</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-list-alt"></i> 主要寄存器</h3>
+                        <ul class="register-list">
+                            <li>
+                                <span class="register-name">GPIOx_CRL/CRH</span>
+                                <span class="register-desc">端口配置寄存器（低/高），控制引脚模式与速度</span>
+                            </li>
+                            <li>
+                                <span class="register-name">GPIOx_IDR</span>
+                                <span class="register-desc">输入数据寄存器，读取引脚输入电平</span>
+                            </li>
+                            <li>
+                                <span class="register-name">GPIOx_ODR</span>
+                                <span class="register-desc">输出数据寄存器，设置引脚输出电平</span>
+                            </li>
+                            <li>
+                                <span class="register-name">GPIOx_BSRR</span>
+                                <span class="register-desc">置位/清零寄存器，原子操作置位或清零引脚</span>
+                            </li>
+                            <li>
+                                <span class="register-name">GPIOx_BRR</span>
+                                <span class="register-desc">清零寄存器，清零对应引脚</span>
+                            </li>
+                            <li>
+                                <span class="register-name">GPIOx_LCKR</span>
+                                <span class="register-desc">配置锁定寄存器，防止意外修改配置</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-plug"></i> GPIO工作模式</h3>
+                        <div class="pin-functions">
+                            <span class="pin-tag">输入浮空</span>
+                            <span class="pin-tag">上拉输入</span>
+                            <span class="pin-tag">下拉输入</span>
+                            <span class="pin-tag">推挽输出</span>
+                            <span class="pin-tag">开漏输出</span>
+                            <span class="pin-tag">复用推挽</span>
+                            <span class="pin-tag">复用开漏</span>
+                            <span class="pin-tag">模拟模式</span>
+                            <span class="pin-tag">外部中断</span>
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-exclamation-triangle"></i> 注意事项</h3>
+                        <p style="color: #bbb; font-size: 0.95rem; line-height: 1.6; margin-top: 15px;">
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            使用前务必使能对应GPIO端口时钟<br><br>
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            5V兼容应用需使用开漏模式加上拉电阻<br><br>
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            高速信号需注意PCB走线阻抗和端接匹配<br><br>
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            未使用的引脚建议配置为模拟输入以降低功耗
+                        </p>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-history"></i> 典型应用场景</h3>
+                        <p style="color: #bbb; font-size: 0.95rem; line-height: 1.6; margin-top: 15px;">
+                            • LED指示灯控制<br>
+                            • 按键和开关检测<br>
+                            • 继电器和电磁阀驱动<br>
+                            • 数码管显示控制<br>
+                            • 外设通信接口（SPI/I2C/UART）<br>
+                            • 传感器数据采集<br>
+                            • 电机控制信号
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>STM32F103 GPIO模块详情页面 | 包含CubeMX配置、HAL库使用和技术参数</p>
+            <p style="margin-top: 10px; font-size: 0.8rem;">提示：此页面包含了GPIO的完整知识体系，从CubeMX配置到HAL库编程再到高级功能</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 页面加载动画
+            document.body.style.opacity = 0;
+            document.body.style.transition = 'opacity 0.8s ease';
+            
+            setTimeout(() => {
+                document.body.style.opacity = 1;
+            }, 100);
+            
+            // 为引脚标签添加悬停效果
+            const pinTags = document.querySelectorAll('.pin-tag');
+            pinTags.forEach(tag => {
+                tag.addEventListener('mouseenter', function() {
+                    this.style.boxShadow = '0 0 10px rgba(100, 100, 100, 0.5)';
+                });
+                
+                tag.addEventListener('mouseleave', function() {
+                    this.style.boxShadow = 'none';
+                });
+            });
+            
+            // 为表格行添加悬停效果
+            const tableRows = document.querySelectorAll('.params-table tr, .config-table tr');
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#2a2a2a';
+                });
+                
+                row.addEventListener('mouseleave', function() {
+                    if (this.rowIndex % 2 === 0) {
+                        this.style.backgroundColor = '#1a1a1a';
+                    } else {
+                        this.style.backgroundColor = '';
+                    }
+                });
+            });
+            
+            // 为返回按钮添加点击效果
+            const backButton = document.querySelector('.back-button');
+            if (backButton) {
+                backButton.addEventListener('click', function(e) {
+                    // 添加点击反馈
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                });
+            }
+            
+            // 为导航按钮添加点击效果
+            const navButtons = document.querySelectorAll('.nav-button');
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // 添加点击反馈
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                });
+            });
+        });
+        
+        // 滚动到指定部分的函数
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                // 平滑滚动到目标位置
+                element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                // 添加视觉反馈
+                element.style.backgroundColor = '#2a2a2a';
+                setTimeout(() => {
+                    element.style.backgroundColor = '';
+                }, 1500);
+            }
+        }
+    </script>
+</body>
+</html>

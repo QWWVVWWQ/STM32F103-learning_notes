@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>定时器模块详情 - STM32F103</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #0a0a0a;
+            color: #f0f0f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 头部样式 */
+        header {
+            padding: 30px 0 20px;
+            border-bottom: 1px solid #333;
+            margin-bottom: 40px;
+        }
+        
+        /* 标题区域 */
+        h1 {
+            color: #fff;
+            font-size: 2.8rem;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+            text-align: right;
+        }
+        
+        /* 副标题与按钮容器 */
+        .subtitle-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .module-subtitle {
+            color: #aaa;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            text-align: right;
+            flex-shrink: 0;
+        }
+        
+        /* 面包屑导航 */
+        .breadcrumb {
+            text-align: right;
+            margin-bottom: 20px;
+            color: #888;
+            font-size: 0.95rem;
+        }
+        
+        .breadcrumb a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .breadcrumb a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+        
+        /* 新增：按钮容器 - 左侧 */
+        .header-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        /* 导航按钮样式 */
+        .nav-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #222;
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border: 1px solid #444;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .nav-button:hover {
+            background-color: #333;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-button.cubemx {
+            border-left: 4px solid #ff9800;
+        }
+        
+        .nav-button.hal {
+            border-left: 4px solid #4ec9b0;
+        }
+        
+        .nav-button.details {
+            border-left: 4px solid #569cd6;
+        }
+        
+        /* 主要内容布局 */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 40px;
+            margin-bottom: 60px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 左侧内容区域 */
+        .content-left {
+            background-color: #111;
+            border-radius: 15px;
+            padding: 40px;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 右侧侧边栏 - 模块详情 */
+        .sidebar-right {
+            background-color: #111;
+            border-radius: 15px;
+            padding: 30px;
+            border: 1px solid #333;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateX(30px);
+            animation: slideInRight 1s ease 0.3s forwards;
+        }
+        
+        @keyframes slideInRight {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* 内容区域样式 */
+        .content-section {
+            margin-bottom: 40px;
+        }
+        
+        .content-section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #fff;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .content-section h3 {
+            font-size: 1.4rem;
+            margin: 25px 0 15px;
+            color: #ddd;
+        }
+        
+        .content-section p {
+            color: #bbb;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+        
+        .content-section ul, .content-section ol {
+            padding-left: 25px;
+            margin-bottom: 20px;
+        }
+        
+        .content-section li {
+            color: #bbb;
+            line-height: 1.7;
+            margin-bottom: 8px;
+        }
+        
+        /* 代码块样式 */
+        .code-block {
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #666;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        
+        .code-block pre {
+            color: #ddd;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        
+        .code-block code {
+            color: #4ec9b0;
+        }
+        
+        /* 配置选项表格 */
+        .config-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .config-table th {
+            background-color: #222;
+            color: #fff;
+            text-align: left;
+            padding: 12px 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #333;
+        }
+        
+        .config-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #333;
+            color: #bbb;
+        }
+        
+        .config-table tr:nth-child(even) {
+            background-color: #1a1a1a;
+        }
+        
+        .config-table tr:hover {
+            background-color: #222;
+        }
+        
+        /* 侧边栏样式 - 模块详情 */
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+        
+        .sidebar-section h3 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #fff;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* 技术参数表格 */
+        .params-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .params-table th {
+            background-color: #222;
+            color: #fff;
+            text-align: left;
+            padding: 12px 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #333;
+        }
+        
+        .params-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #333;
+            color: #bbb;
+        }
+        
+        .params-table tr:nth-child(even) {
+            background-color: #1a1a1a;
+        }
+        
+        .params-table tr:hover {
+            background-color: #222;
+        }
+        
+        /* 寄存器列表 */
+        .register-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .register-list li {
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background-color: #1a1a1a;
+            border-radius: 6px;
+            border-left: 3px solid #666;
+            transition: all 0.3s ease;
+        }
+        
+        .register-list li:hover {
+            background-color: #222;
+            border-left-color: #aaa;
+            transform: translateX(5px);
+        }
+        
+        .register-name {
+            font-weight: bold;
+            color: #fff;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .register-desc {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        
+        /* 功能标签 */
+        .pin-functions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .pin-tag {
+            background-color: #1a1a1a;
+            color: #ccc;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+        }
+        
+        .pin-tag:hover {
+            background-color: #222;
+            border-color: #666;
+            transform: translateY(-3px);
+        }
+        
+        /* 模块特性卡片 */
+        .module-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .feature-card {
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            padding: 20px;
+            border-top: 4px solid #666;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: #aaa;
+        }
+        
+        .feature-card h4 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feature-card p {
+            color: #bbb;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        /* 返回按钮 */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #222;
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid #444;
+        }
+        
+        .back-button:hover {
+            background-color: #333;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 页脚 */
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 60px;
+            border-top: 1px solid #333;
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr 300px;
+            }
+            
+            .content-left {
+                padding: 30px;
+            }
+            
+            .sidebar-right {
+                padding: 25px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .sidebar-right {
+                order: -1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .module-subtitle {
+                font-size: 1rem;
+            }
+            
+            .content-left, .sidebar-right {
+                padding: 25px;
+            }
+            
+            .module-features {
+                grid-template-columns: 1fr;
+            }
+            
+            .params-table, .config-table {
+                font-size: 0.9rem;
+            }
+            
+            .params-table th, .params-table td,
+            .config-table th, .config-table td {
+                padding: 10px 12px;
+            }
+            
+            .subtitle-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .module-subtitle {
+                text-align: left;
+                width: 100%;
+            }
+            
+            .header-buttons {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .breadcrumb {
+                text-align: left;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .content-left, .sidebar-right {
+                padding: 20px;
+            }
+            
+            .content-section h2 {
+                font-size: 1.6rem;
+            }
+            
+            .content-section h3 {
+                font-size: 1.3rem;
+            }
+            
+            .sidebar-section h3 {
+                font-size: 1.3rem;
+            }
+            
+            .header-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .nav-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="breadcrumb">
+                <a href="demo.html">主页</a> &gt; <span>定时器模块详情</span>
+            </div>
+            
+            <h1>定时器（Timer）模块</h1>
+            
+            <!-- 副标题与按钮容器 -->
+            <div class="subtitle-container">
+                <!-- 新增的按钮容器 - 左侧 -->
+                <div class="header-buttons">
+                    <button class="nav-button cubemx" onclick="scrollToSection('cubemx-quickstart')">
+                        <i class="fas fa-tools"></i> CubeMX使用
+                    </button>
+                    <button class="nav-button hal" onclick="scrollToSection('hal-library')">
+                        <i class="fas fa-code"></i> HAL库使用
+                    </button>
+                    <button class="nav-button details" onclick="scrollToSection('details')">
+                        <i class="fas fa-info-circle"></i> 详细信息
+                    </button>
+                </div>
+                
+                <!-- 副标题 - 右侧 -->
+                <p class="module-subtitle">STM32F103定时器模块，提供高级控制、通用和基本定时功能</p>
+            </div>
+        </header>
+        
+        <main>
+            <div class="main-content">
+                <!-- 左侧内容区域 -->
+                <div class="content-left">
+                    <div class="content-section">
+                        <h2><i class="fas fa-info-circle"></i> 概述</h2>
+                        <p>STM32定时器模块是微控制器中非常重要的外设，提供了丰富的定时、计数、PWM生成、输入捕获和输出比较等功能。STM32F103系列提供了三种类型的定时器，分别适用于不同的应用场景。</p>
+                        
+                        <h3>STM32F103定时器基础</h3>
+                        <p>STM32F103的定时器功能强大，主要分为三类，各自适用于不同场景：</p>
+                        
+                        <ul>
+                            <li><strong>基本定时器 (TIM6, TIM7)</strong>：仅用于基础的定时和触发DAC。STM32F103C8等型号不包含基本定时器。</li>
+                            <li><strong>通用定时器 (TIM2, TIM3, TIM4, TIM5)</strong>：最常用，除了定时，还支持输入捕获、输出比较、PWM生成等功能。它们挂载在APB1总线上。</li>
+                            <li><strong>高级定时器 (TIM1, TIM8)</strong>：功能最全，在通用定时器基础上增加了互补输出、死区控制等电机控制专用功能，挂载在APB2总线上。</li>
+                        </ul>
+                        
+                        <p><strong>时钟源说明</strong>：STM32F103系列所有定时器的时钟频率通常为72MHz。但需注意，定时器实际使用的时钟可能经过APB总线预分频器调整。</p>
+                        
+                        <h3>主要功能</h3>
+                        <p>STM32定时器模块提供了以下主要功能：</p>
+                        
+                        <ul>
+                            <li><strong>定时与计数</strong>：支持向上、向下和中央对齐计数模式</li>
+                            <li><strong>PWM生成</strong>：支持边沿对齐和中央对齐PWM，高级定时器支持互补输出和死区插入</li>
+                            <li><strong>输入捕获</strong>：测量脉冲宽度、频率和占空比</li>
+                            <li><strong>输出比较</strong>：产生单脉冲、可变频率输出</li>
+                            <li><strong>编码器接口</strong>：直接连接正交编码器</li>
+                            <li><strong>外部触发同步</strong>：多个定时器之间同步</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- CubeMX使用部分 -->
+                    <div id="cubemx-quickstart" class="content-section">
+                        <h2><i class="fas fa-tools"></i> CubeMX使用</h2>
+                        <p>STM32CubeMX是ST官方提供的图形化配置工具，可以快速配置定时器参数，生成初始化代码。</p>
+                        
+                        <h3>CubeMX配置步骤（以通用定时器TIM2为例）</h3>
+                        <p>下面以实现1秒定时中断为例，说明配置流程：</p>
+                        
+                        <h4>1. 选择定时器与时钟源</h4>
+                        <p>在CubeMX的Pinout & Configuration界面，找到TIM2，将Clock Source设为Internal Clock（内部时钟）。</p>
+                        
+                        <h4>2. 关键参数计算与设置</h4>
+                        <p>在定时器参数配置页面，需要设置两个核心参数以确定定时周期：</p>
+                        <ul>
+                            <li><strong>Prescaler (预分频系数PSC)</strong>：对72MHz的时钟进行分频，得到计数器实际计数的频率。</li>
+                            <li><strong>Counter Period (自动重载值ARR)</strong>：计数器计数的目标值。</li>
+                        </ul>
+                        
+                        <p>其定时周期计算公式为：</p>
+                        <div class="code-block">
+                            <pre><code>定时时长 = (PSC + 1) × (ARR + 1) / 定时器时钟频率</code></pre>
+                        </div>
+                        
+                        <h4>3. 配置1秒中断示例</h4>
+                        <p>目标：1秒中断一次。</p>
+                        <p>思路：为减少中断次数以节省CPU资源，可将预分频系数(PSC)设为7199，自动重载值(ARR)设为9999。</p>
+                        <div class="code-block">
+                            <pre><code>计算：(7199+1) * (9999+1) / 72,000,000 Hz = 1秒</code></pre>
+                        </div>
+                        
+                        <p><strong>更优配置建议</strong>：对于精确的1Hz（1秒一次）LED闪烁，更优的做法是将预分频系数(PSC)设为35999，自动重载值(ARR)设为1999。这样每次中断就是1秒 ((35999+1)*(1999+1)/72,000,000 = 1秒)，无需在回调函数内计数，效率更高。</p>
+                        
+                        <h4>4. 使能中断</h4>
+                        <p>在NVIC Settings选项卡中，勾选TIM2 global interrupt以启用全局中断。</p>
+                        
+                        <h4>5. 生成代码</h4>
+                        <p>完成其他必要配置（如系统时钟树）后，生成工程代码。</p>
+                        
+                        <h3>CubeMX生成的初始化代码</h3>
+                        <div class="code-block">
+                            <pre><code>// CubeMX生成的定时器初始化代码（main.c中的MX_TIM2_Init函数）
+static void MX_TIM2_Init(void) {
+    TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+    TIM_MasterConfigTypeDef sMasterConfig = {0};
+    
+    // 定时器句柄配置
+    htim2.Instance = TIM2;
+    htim2.Init.Prescaler = 7199;          // 预分频系数
+    htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+    htim2.Init.Period = 9999;             // 自动重载值
+    htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+    
+    // 初始化定时器
+    if (HAL_TIM_Base_Init(&htim2) != HAL_OK) {
+        Error_Handler();
+    }
+    
+    // 配置时钟源
+    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+    if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK) {
+        Error_Handler();
+    }
+    
+    // 配置主模式
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK) {
+        Error_Handler();
+    }
+}</code></pre>
+                        </div>
+                        
+                        <h3>定时器进阶应用配置</h3>
+                        <table class="config-table">
+                            <thead>
+                                <tr>
+                                    <th>应用方向</th>
+                                    <th>主要功能与HAL库启动函数</th>
+                                    <th>简要说明</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>PWM输出</td>
+                                    <td>驱动电机、LED调光等。HAL_TIM_PWM_Start(&htimx, TIM_CHANNEL_n)</td>
+                                    <td>需在CubeMX中将定时器通道设为PWM模式，并配置脉冲（占空比）。</td>
+                                </tr>
+                                <tr>
+                                    <td>输入捕获</td>
+                                    <td>测量脉冲宽度、频率等。HAL_TIM_IC_Start_IT(&htimx, TIM_CHANNEL_n)</td>
+                                    <td>可精确捕捉外部信号的边沿。</td>
+                                </tr>
+                                <tr>
+                                    <td>编码器接口</td>
+                                    <td>读取正交编码器位置和速度。HAL_TIM_Encoder_Start(&htimx, TIM_CHANNEL_ALL)</td>
+                                    <td>硬件直接处理两路相位差90度的信号。</td>
+                                </tr>
+                                <tr>
+                                    <td>输出比较</td>
+                                    <td>产生单脉冲或PWM。HAL_TIM_OC_Start(&htimx, TIM_CHANNEL_n)</td>
+                                    <td>用于生成特定波形或触发其他外设。</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                        
+                    <!-- HAL库使用部分 -->
+                    <div id="hal-library" class="content-section">
+                        <h2><i class="fas fa-code"></i> HAL库使用</h2>
+                        <p>STM32 HAL库提供了丰富的定时器驱动函数，简化了定时器的配置和使用。</p>
+                        
+                        <h3>代码编写与关键函数</h3>
+                        <p>CubeMX生成的初始化代码（MX_TIM2_Init()）一般不需要手动修改。你需要手动添加以下两部分：</p>
+                        
+                        <h4>1. 启动定时器中断</h4>
+                        <p>在main()函数的初始化部分（/* USER CODE BEGIN 2 */区域内），调用HAL库函数启动定时器和中断：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// 启动定时器中断
+HAL_TIM_Base_Start_IT(&htim2); // &htim2 是CubeMX生成的定时器句柄</code></pre>
+                        </div>
+                        
+                        <h4>2. 重写中断回调函数</h4>
+                        <p>所有定时器的更新（溢出）中断都会调用同一个回调函数。你需要在工程中（通常在main.c末尾）重写它，并通过判断句柄来执行特定操作：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// 定时器中断回调函数
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+    if (htim->Instance == TIM2) { // 判断是否是TIM2的中断
+        HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_2); // 示例：翻转LED引脚电平
+    }
+}</code></pre>
+                        </div>
+                        
+                        <h3>HAL主要函数列表</h3>
+                        <div class="code-block">
+                            <pre><code>// 定时器HAL主要函数
+HAL_TIM_Base_Init()           // 初始化定时器基础功能
+HAL_TIM_Base_Start()          // 启动定时器
+HAL_TIM_Base_Stop()           // 停止定时器
+HAL_TIM_Base_Start_IT()       // 启动定时器中断模式
+HAL_TIM_Base_Start_DMA()      // 启动定时器DMA模式
+
+// PWM相关函数
+HAL_TIM_PWM_Init()            // 初始化PWM模式
+HAL_TIM_PWM_Start()           // 启动PWM输出
+HAL_TIM_PWM_Stop()            // 停止PWM输出
+
+// 输入捕获相关函数
+HAL_TIM_IC_Init()             // 初始化输入捕获模式
+HAL_TIM_IC_Start()            // 启动输入捕获
+HAL_TIM_IC_Stop()             // 停止输入捕获
+
+// 编码器模式相关函数
+HAL_TIM_Encoder_Init()        // 初始化编码器模式
+HAL_TIM_Encoder_Start()       // 启动编码器接口
+
+// 中断处理函数
+HAL_TIM_IRQHandler()          // 定时器中断处理函数</code></pre>
+                        </div>
+                        
+                        <h3>常用HAL函数使用示例</h3>
+                        <p>基本定时器操作函数：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// 常用HAL函数使用示例
+#include "stm32f1xx_hal.h"
+
+TIM_HandleTypeDef htim2;
+
+// 初始化定时器
+void Timer_Init_Example(void) {
+    // 配置定时器参数
+    htim2.Instance = TIM2;
+    htim2.Init.Prescaler = 7199;  // 预分频器：72MHz/(7199+1) = 10kHz
+    htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+    htim2.Init.Period = 9999;     // 自动重载值：10kHz/10000 = 1Hz
+    htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+    
+    // 初始化定时器
+    if (HAL_TIM_Base_Init(&htim2) != HAL_OK) {
+        // 初始化失败处理
+    }
+}
+
+// 启动定时器工作
+void Start_Timer(void) {
+    // 启动定时器
+    HAL_TIM_Base_Start(&htim2);
+    
+    // 或启动定时器中断模式
+    HAL_TIM_Base_Start_IT(&htim2);
+}
+
+// 停止定时器工作
+void Stop_Timer(void) {
+    HAL_TIM_Base_Stop(&htim2);
+}</code></pre>
+                        </div>
+                        
+                        <h3>PWM输出配置示例</h3>
+                        <p>使用HAL库配置PWM输出的完整示例：</p>
+                        
+                        <div class="code-block">
+                            <pre><code>// PWM输出配置示例
+#include "stm32f1xx_hal.h"
+
+TIM_HandleTypeDef htim3;
+TIM_OC_InitTypeDef sConfigOC;
+
+void PWM_Init_Example(void) {
+    // 1. 使能定时器时钟
+    __HAL_RCC_TIM3_CLK_ENABLE();
+    
+    // 2. 配置定时器基础参数
+    htim3.Instance = TIM3;
+    htim3.Init.Prescaler = 71;        // 1MHz计数频率 (72MHz/72)
+    htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+    htim3.Init.Period = 999;          // 1kHz PWM频率 (1MHz/1000)
+    htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+    
+    // 3. 初始化定时器
+    HAL_TIM_PWM_Init(&htim3);
+    
+    // 4. 配置PWM通道
+    sConfigOC.OCMode = TIM_OCMODE_PWM1;
+    sConfigOC.Pulse = 500;            // 50%占空比 (500/1000)
+    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+    
+    // 5. 初始化PWM通道
+    HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1);
+    
+    // 6. 启动PWM输出
+    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+}</code></pre>
+                        </div>
+                    </div>
+                    
+                    <!-- 详细信息部分 -->
+                    <div id="details" class="content-section">
+                        <h2><i class="fas fa-file-alt"></i> 详细信息</h2>
+                        <p>深入了解定时器模块的内部架构、性能特性和高级功能。</p>
+                        
+                        <h3>定时器类型与架构</h3>
+                        <p>STM32F103提供了三种类型的定时器：</p>
+                        <table class="config-table">
+                            <thead>
+                                <tr>
+                                    <th>定时器类型</th>
+                                    <th>对应章节</th>
+                                    <th>适用产品</th>
+                                    <th>主要用途</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>高级控制定时器</strong></td>
+                                    <td>第13章：TIM1 和 TIM8</td>
+                                    <td>所有STM32F10xxx</td>
+                                    <td>电机控制、PWM高级应用</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>通用定时器</strong></td>
+                                    <td>第14章：TIMx (TIM2–TIM5)</td>
+                                    <td>所有STM32F10xxx</td>
+                                    <td>通用计时、PWM、输入捕获、输出比较</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>基本定时器</strong></td>
+                                    <td>第15章：TIM6 和 TIM7</td>
+                                    <td>所有STM32F10xxx</td>
+                                    <td>基础定时、触发DAC、简单计时</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <h3>时钟架构</h3>
+                        <p>定时器时钟来源：APB总线时钟（可能经过倍频）</p>
+                        <ul>
+                            <li>当APB预分频器为1时，定时器时钟 = APB时钟</li>
+                            <li>当APB预分频器不为1时，定时器时钟 = APB时钟 × 2</li>
+                            <li>预分频器（PSC）用于降低计数频率</li>
+                            <li>自动重载寄存器（ARR）决定计数周期</li>
+                        </ul>
+                        
+                        <h3>性能分析与优化</h3>
+                        <p>定时器性能关键指标和优化建议：</p>
+                        <ul>
+                            <li><strong>最大工作频率</strong>：72MHz（取决于APB总线配置）</li>
+                            <li><strong>定时精度</strong>：最高14ns @ 72MHz</li>
+                            <li><strong>PWM分辨率</strong>：最高16位（65535级）</li>
+                            <li><strong>功耗优化</strong>：合理使用低功耗模式和时钟门控</li>
+                            <li><strong>响应时间</strong>：优化中断处理和DMA配置减少延迟</li>
+                        </ul>
+                        
+                        <h3>不同产品系列的定时器差异</h3>
+                        <div class="code-block">
+                            <pre><code>// 不同STM32系列的定时器差异
+#if defined(STM32F103xE) || defined(STM32F103xG)
+    // 大容量产品：完整定时器支持（TIM1-8）
+    #define TIM_FULL_FEATURES
+    #define TIM_ADVANCED_MODE
+#elif defined(STM32F103xC)
+    // 中容量产品：基础定时器支持（TIM1-4）
+    #define TIM_BASIC_FEATURES
+    #define TIM_STANDARD_MODE
+#elif defined(STM32F103x8) || defined(STM32F103xB)
+    // 小容量产品：有限定时器支持（TIM1-3）
+    #define TIM_LIMITED_FEATURES
+#endif</code></pre>
+                        </div>
+                        
+                        <h3>定时器在低功耗模式下的行为</h3>
+                        <p>了解定时器在不同低功耗模式下的状态：</p>
+                        <ul>
+                            <li><strong>睡眠模式</strong>：定时器继续运行，可产生中断唤醒CPU</li>
+                            <li><strong>停机模式</strong>：定时器停止工作，但配置保持</li>
+                            <li><strong>待机模式</strong>：定时器完全关闭，仅复位有效</li>
+                            <li><strong>功耗优化建议</strong>：进入低功耗前，保存定时器上下文并禁制定时器</li>
+                        </ul>
+                        
+                        <h3>故障排除与调试技巧</h3>
+                        <p>常见定时器问题及解决方法：</p>
+                        <ul>
+                            <li><strong>定时器无响应</strong>：检查时钟是否使能，APB总线配置，复位引脚状态</li>
+                            <li><strong>PWM输出异常</strong>：检查GPIO复用配置、PWM模式和极性设置</li>
+                            <li><strong>中断不触发</strong>：确认中断使能，检查NVIC优先级，验证触发条件</li>
+                            <li><strong>定时精度不达标</strong>：优化预分频器和ARR配置，检查时钟树设置</li>
+                            <li><strong>编码器读数错误</strong>：检查编码器模式、滤波器和输入极性</li>
+                        </ul>
+                        
+                        <h3>总结与选择建议</h3>
+                        <ul>
+                            <li><strong>基础定时/简单延时</strong>：首选通用定时器（如TIM2-TIM5）的定时中断模式。</li>
+                            <li><strong>控制电机、生成复杂PWM</strong>：需使用高级定时器（TIM1， TIM8）的死区和互补输出功能。</li>
+                            <li><strong>测量外部信号</strong>：使用通用/高级定时器的输入捕获模式。</li>
+                            <li><strong>连接旋转编码器</strong>：使用支持编码器接口模式的定时器。</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- 模块特性卡片展示 -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-star"></i> 定时器核心特性</h2>
+                        <div class="module-features">
+                            <div class="feature-card">
+                                <h4><i class="fas fa-sliders-h"></i> 多类型支持</h4>
+                                <p>提供高级、通用和基本三种定时器，满足不同应用需求。高级定时器支持死区插入、刹车功能等高级特性。</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4><i class="fas fa-bolt"></i> 高精度定时</h4>
+                                <p>最高72MHz时钟，14ns定时精度，支持向上/向下/中央对齐计数，满足高精度定时需求。</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4><i class="fas fa-exchange-alt"></i> 丰富工作模式</h4>
+                                <p>支持PWM生成、输入捕获、输出比较、编码器接口等多种模式，应用场景广泛。</p>
+                            </div>
+                            <div class="feature-card">
+                                <h4><i class="fas fa-shield-alt"></i> 高可靠性</h4>
+                                <p>支持定时器同步、外部触发、刹车输入等功能，确保系统安全可靠运行。</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="demo.html" class="back-button">
+                        <i class="fas fa-arrow-left"></i> 返回主页面
+                    </a>
+                </div>
+                
+                <!-- 右侧侧边栏 - 模块详情 -->
+                <div class="sidebar-right">
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-microchip"></i> 技术参数</h3>
+                        <table class="params-table">
+                            <thead>
+                                <tr>
+                                    <th>参数</th>
+                                    <th>值/规格</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>定时器数量</td>
+                                    <td>最多8个（取决于型号）</td>
+                                </tr>
+                                <tr>
+                                    <td>时钟源</td>
+                                    <td>APB总线时钟（最高72MHz）</td>
+                                </tr>
+                                <tr>
+                                    <td>计数器分辨率</td>
+                                    <td>16位（通用定时器）</td>
+                                </tr>
+                                <tr>
+                                    <td>预分频器</td>
+                                    <td>16位（1-65536分频）</td>
+                                </tr>
+                                <tr>
+                                    <td>PWM分辨率</td>
+                                    <td>最高16位</td>
+                                </tr>
+                                <tr>
+                                    <td>PWM频率范围</td>
+                                    <td>0.01Hz - 36MHz</td>
+                                </tr>
+                                <tr>
+                                    <td>输入捕获精度</td>
+                                    <td>14ns @ 72MHz</td>
+                                </tr>
+                                <tr>
+                                    <td>编码器接口</td>
+                                    <td>正交编码器支持</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-list-alt"></i> 主要寄存器</h3>
+                        <ul class="register-list">
+                            <li>
+                                <span class="register-name">TIMx_CR1/CR2</span>
+                                <span class="register-desc">控制寄存器，配置工作模式、计数方向、使能等</span>
+                            </li>
+                            <li>
+                                <span class="register-name">TIMx_SMCR</span>
+                                <span class="register-desc">从模式控制寄存器，配置定时器同步和触发模式</span>
+                            </li>
+                            <li>
+                                <span class="register-name">TIMx_DIER</span>
+                                <span class="register-desc">中断使能寄存器，使能定时器中断和DMA请求</span>
+                            </li>
+                            <li>
+                                <span class="register-name">TIMx_SR</span>
+                                <span class="register-desc">状态寄存器，读取定时器状态和中断标志</span>
+                            </li>
+                            <li>
+                                <span class="register-name">TIMx_CNT</span>
+                                <span class="register-desc">计数器寄存器，存储当前计数值</span>
+                            </li>
+                            <li>
+                                <span class="register-name">TIMx_PSC</span>
+                                <span class="register-desc">预分频器，设置时钟分频系数</span>
+                            </li>
+                            <li>
+                                <span class="register-name">TIMx_ARR</span>
+                                <span class="register-desc">自动重载寄存器，设置计数周期</span>
+                            </li>
+                            <li>
+                                <span class="register-name">TIMx_CCR1-4</span>
+                                <span class="register-desc">捕获/比较寄存器，存储捕获值或比较值</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-plug"></i> 工作模式</h3>
+                        <div class="pin-functions">
+                            <span class="pin-tag">定时模式</span>
+                            <span class="pin-tag">PWM模式</span>
+                            <span class="pin-tag">输入捕获</span>
+                            <span class="pin-tag">输出比较</span>
+                            <span class="pin-tag">编码器模式</span>
+                            <span class="pin-tag">单脉冲模式</span>
+                            <span class="pin-tag">互补输出</span>
+                            <span class="pin-tag">死区插入</span>
+                            <span class="pin-tag">刹车功能</span>
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-exclamation-triangle"></i> 注意事项</h3>
+                        <p style="color: #bbb; font-size: 0.95rem; line-height: 1.6; margin-top: 15px;">
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            定时器时钟必须正确配置，注意APB总线预分频器的影响<br><br>
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            PWM输出时需配置GPIO为复用功能，并选择正确的复用映射<br><br>
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            使用输入捕获时，注意输入滤波和分频设置，避免噪声干扰<br><br>
+                            <i class="fas fa-check-circle" style="color: #4CAF50; margin-right: 8px;"></i> 
+                            定时器中断服务函数中必须清除中断标志位
+                        </p>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-history"></i> 典型应用场景</h3>
+                        <p style="color: #bbb; font-size: 0.95rem; line-height: 1.6; margin-top: 15px;">
+                            • 电机控制（PWM、编码器接口）<br>
+                            • 电源管理（开关电源、逆变器）<br>
+                            • 传感器数据采集（输入捕获）<br>
+                            • 人机界面（LED调光、蜂鸣器控制）<br>
+                            • 通信协议（产生特定波形）<br>
+                            • 时间基准（系统时钟、任务调度）<br>
+                            • 超声波测距（脉冲宽度测量）
+                        </p>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-book"></i> 定时器选择指南</h3>
+                        <p style="color: #bbb; font-size: 0.95rem; line-height: 1.6; margin-top: 15px;">
+                            • <strong>简单定时</strong>: TIM2-TIM5（通用定时器）<br>
+                            • <strong>电机控制</strong>: TIM1, TIM8（高级定时器）<br>
+                            • <strong>编码器接口</strong>: TIM2, TIM3, TIM4, TIM5<br>
+                            • <strong>基础定时</strong>: TIM6, TIM7（基本定时器）<br>
+                            • <strong>多通道PWM</strong>: TIM1, TIM2, TIM3, TIM4<br>
+                            • <strong>高精度测量</strong>: 任意定时器（输入捕获模式）
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>STM32F103 定时器模块详情页面 | 包含CubeMX配置、HAL库使用和技术参数</p>
+            <p style="margin-top: 10px; font-size: 0.8rem;">提示：此页面整合了定时器模块的完整配置和使用信息</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 页面加载动画
+            document.body.style.opacity = 0;
+            document.body.style.transition = 'opacity 0.8s ease';
+            
+            setTimeout(() => {
+                document.body.style.opacity = 1;
+            }, 100);
+            
+            // 为引脚标签添加悬停效果
+            const pinTags = document.querySelectorAll('.pin-tag');
+            pinTags.forEach(tag => {
+                tag.addEventListener('mouseenter', function() {
+                    this.style.boxShadow = '0 0 10px rgba(100, 100, 100, 0.5)';
+                });
+                
+                tag.addEventListener('mouseleave', function() {
+                    this.style.boxShadow = 'none';
+                });
+            });
+            
+            // 为表格行添加悬停效果
+            const tableRows = document.querySelectorAll('.params-table tr, .config-table tr');
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#2a2a2a';
+                });
+                
+                row.addEventListener('mouseleave', function() {
+                    if (this.rowIndex % 2 === 0) {
+                        this.style.backgroundColor = '#1a1a1a';
+                    } else {
+                        this.style.backgroundColor = '';
+                    }
+                });
+            });
+            
+            // 为返回按钮添加点击效果
+            const backButton = document.querySelector('.back-button');
+            if (backButton) {
+                backButton.addEventListener('click', function(e) {
+                    // 添加点击反馈
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                });
+            }
+            
+            // 为导航按钮添加点击效果
+            const navButtons = document.querySelectorAll('.nav-button');
+            navButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // 添加点击反馈
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                });
+            });
+        });
+        
+        // 滚动到指定部分的函数
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                // 平滑滚动到目标位置
+                element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                // 添加视觉反馈
+                element.style.backgroundColor = '#2a2a2a';
+                setTimeout(() => {
+                    element.style.backgroundColor = '';
+                }, 1500);
+            }
+        }
+    </script>
+</body>
+</html>
